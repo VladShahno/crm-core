@@ -1,11 +1,9 @@
 package com.crm.verification.core.dto.request;
 
-import java.util.HashSet;
 import java.util.Set;
 import javax.validation.constraints.Email;
 
 import com.crm.verification.core.dto.request.list.PackageDataListRequestDto;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

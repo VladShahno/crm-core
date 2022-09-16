@@ -3,7 +3,6 @@ package com.crm.verification.core.service;
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
 import static com.crm.verification.core.common.Constants.Logging.ID;
 import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
-import static com.crm.verification.core.common.Constants.Logging.PACKAGE_ID;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_IDS;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
