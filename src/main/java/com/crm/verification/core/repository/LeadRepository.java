@@ -5,7 +5,9 @@ import java.util.Optional;
 import com.crm.verification.core.model.Lead;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface LeadRepository extends PagingAndSortingRepository<Lead, Long> {
 
@@ -13,5 +15,6 @@ public interface LeadRepository extends PagingAndSortingRepository<Lead, Long> {
 
   boolean existsByEmail(String email);
 
-  Page<Lead> findAllByPackageData_PackageId(String packageId, Pageable pageable);
+  @Query("select p from PackageData p where p.packageId = :packageId")
+  Page<Lead> findAllByPackageDataPackageId(@Param("packageId") String packageId, Pageable pageable);
 }

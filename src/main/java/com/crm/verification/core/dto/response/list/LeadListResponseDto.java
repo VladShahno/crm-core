@@ -1,24 +1,22 @@
 package com.crm.verification.core.dto.response.list;
 
-import java.util.List;
+import java.util.Set;
 
-import com.crm.verification.core.model.Lead;
-import lombok.Data;
-import org.springframework.beans.BeanUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class LeadListResponseDto {
 
   private CompanyListResponseDto company;
-  private List<PackageDataListResponseDto> packageData;
+  private Set<PackageDataListResponseDto> packageData;
   private String firstName;
   private String lastName;
   private String email;
   private String title;
   private String proofLink;
   private String verdict;
-
-  public LeadListResponseDto(Lead lead) {
-    BeanUtils.copyProperties(lead, this);
-  }
 }

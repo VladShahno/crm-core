@@ -1,19 +1,24 @@
 package com.crm.verification.core.dto.request;
 
-import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.validation.constraints.Email;
 
 import com.crm.verification.core.dto.request.list.PackageDataListRequestDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LeadRequestDto {
 
   private CompanyRequestDto company;
-  @JsonIgnore
-  private List<PackageDataListRequestDto> packageData;
+  private Set<PackageDataListRequestDto> packageData;
   private String firstName;
   private String lastName;
   @Email
@@ -22,5 +27,4 @@ public class LeadRequestDto {
   private String proofLink;
   private String verdict;
   private String leadComments;
-  private Date created;
 }

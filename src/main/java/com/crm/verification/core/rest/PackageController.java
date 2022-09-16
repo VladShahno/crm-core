@@ -2,7 +2,9 @@ package com.crm.verification.core.rest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.websocket.server.PathParam;
 
+import com.crm.verification.core.dto.request.list.PackageDataListRequestDto;
 import com.crm.verification.core.dto.request.packagedata.PackageDataRequestDto;
 import com.crm.verification.core.dto.response.packagedata.PackageDataResponseDto;
 import com.crm.verification.core.service.PackageService;
@@ -46,7 +48,7 @@ public class PackageController {
     return packageService.createPackage(packageDataRequestDto);
   }
 
-  @GetMapping(value = "by-package-id/{packageId}")
+  @GetMapping(value = "/by-package-id")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get package by packageId")
   @ApiResponses(value = {
@@ -56,9 +58,8 @@ public class PackageController {
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
   public Page<PackageDataResponseDto> getAllByPackageId(
-      @NotBlank
-      @PathVariable String packageId,
-      @Parameter(hidden = true)
+      @NotBlank(message = "{not.blank}")
+      @PathParam("packageId") String packageId,
       @PageableDefault(sort = "packageName", size = 25) Pageable pageable) {
     return packageService.getAllPackagesByPackageId(packageId, pageable);
   }

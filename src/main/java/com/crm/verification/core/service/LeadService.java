@@ -3,6 +3,7 @@ package com.crm.verification.core.service;
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
 import static com.crm.verification.core.common.Constants.Logging.ID;
 import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
+import static com.crm.verification.core.common.Constants.Logging.PACKAGE_ID;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_IDS;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
@@ -10,11 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
-import com.crm.verification.core.dto.request.list.PackageDataListRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.LeadMapper;
+import com.crm.verification.core.mapper.PackageDataMapper;
 import com.crm.verification.core.model.Lead;
 import com.crm.verification.core.repository.LeadRepository;
 import com.crm.verification.core.repository.PackageRepository;
@@ -35,8 +36,10 @@ public class LeadService {
   private final LeadRepository leadRepository;
   private final PackageRepository packageRepository;
   private final LeadMapper leadMapper;
+  private final PackageDataMapper packageDataMapper;
 
   public LeadListResponseDto createLead(LeadRequestDto leadDto, List<String> packageIds) {
+
     if (leadRepository.existsByEmail(leadDto.getEmail())) {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
@@ -47,13 +50,16 @@ public class LeadService {
       log.debug("Setting packageData with {}", keyValue(PACKAGE_IDS, packageIds));
       leadDto.setPackageData(packages
           .stream()
-          .map(PackageDataListRequestDto::new)
-          .collect(Collectors.toList()));
-    }
+          .map(packageDataMapper::toPackageDataListRequestDto)
+          .collect(Collectors.toSet()));
 
-    log.debug("Creating lead with {}", keyValue(EMAIL, leadDto.getEmail()));
-    var lead = leadRepository.save(leadMapper.toLeadEntity(leadDto));
-    return new LeadListResponseDto(lead);
+      var lead = leadMapper.toLeadEntity(leadDto);
+      packages.forEach(packageData -> packageData.addLeads(lead));
+      leadRepository.save(lead);
+
+      return leadMapper.toLeadListResponseDto(lead);
+    }
+    throw new ResourceNotFoundException(PACKAGE_IDS + packageIds);
   }
 
   public Lead updateLeadById(Long id, LeadRequestDto leadRequestDto) {
@@ -91,6 +97,7 @@ public class LeadService {
   }
 
   public Page<LeadListResponseDto> getAllLeadsByPackageId(String packageId, Pageable pageable) {
-    return leadRepository.findAllByPackageData_PackageId(packageId, pageable).map(LeadListResponseDto::new);
+    return leadRepository.findAllByPackageDataPackageId(packageId, pageable)
+        .map(leadMapper::toLeadListResponseDto);
   }
 }

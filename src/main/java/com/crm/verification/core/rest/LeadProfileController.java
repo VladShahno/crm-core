@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,7 +33,13 @@ public class LeadProfileController {
   private LeadService leadService;
 
   @GetMapping(value = "/{id}")
-  @ResponseBody
+  @ResponseStatus(HttpStatus.OK)
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "Lead profile has got successfully",
+          content = {@Content(schema = @Schema(implementation = LeadListResponseDto.class))}),
+      @ApiResponse(responseCode = "404", description = "Invalid params supplied",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+  })
   public Lead getLeadProfileById(@PathVariable @NotBlank(message = "{not.blank}") Long id) {
     return leadService.getById(id);
   }
@@ -49,7 +55,7 @@ public class LeadProfileController {
   })
   public LeadListResponseDto createLead(
       @RequestBody @NotNull LeadRequestDto leadRequestDto,
-      @NotNull List<String> packageIds) {
+      @RequestParam(value = "packageIds") @NotNull List<String> packageIds) {
     return leadService.createLead(leadRequestDto, packageIds);
   }
 }

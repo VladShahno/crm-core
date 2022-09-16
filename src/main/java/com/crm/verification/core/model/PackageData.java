@@ -1,47 +1,82 @@
 package com.crm.verification.core.model;
 
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.hibernate.Hibernate;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "packages")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@RequiredArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(
+    value = {"created", "updated"},
+    allowGetters = true
+)
 public class PackageData {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "package_name", nullable = false)
+  @Column(name = "package_name", nullable = false, unique = true)
   private String packageName;
 
-  @Column(name = "package_id", nullable = false)
+  @Column(name = "package_id", nullable = false, unique = true)
   private String packageId;
 
   @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(name = "package_leads")
-  private List<Lead> leads;
+  private Set<Lead> leads = new HashSet<>();
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "created")
+  @Column(name = "created", updatable = false)
+  @CreatedDate
   private Date created;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated")
+  @LastModifiedDate
   private Date updated;
+
+  public void addLeads(Lead lead) {
+    this.leads.add(lead);
+    lead.getPackageData().add(this);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+      return false;
+    PackageData that = (PackageData) o;
+    return id != null && Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }

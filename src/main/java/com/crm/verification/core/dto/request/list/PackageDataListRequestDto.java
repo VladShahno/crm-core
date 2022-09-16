@@ -1,19 +1,25 @@
 package com.crm.verification.core.dto.request.list;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
-import com.crm.verification.core.model.PackageData;
-import lombok.Data;
-import org.springframework.beans.BeanUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PackageDataListRequestDto {
   private String packageName;
   private String packageId;
-  private List<LeadRequestDto> leads;
+  private Set<LeadRequestDto> leads = new HashSet<>();
 
-  public PackageDataListRequestDto(PackageData packageData) {
-    BeanUtils.copyProperties(packageData, this);
+  public void addLead(LeadRequestDto lead) {
+    this.leads.add(lead);
+    lead.getPackageData().add(this);
   }
 }

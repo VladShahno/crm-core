@@ -1,8 +1,6 @@
 package com.crm.verification.core.dto.response.packagedata;
 
-import com.crm.verification.core.model.Lead;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 @Data
 public class LeadPackageResponseDto {
@@ -14,8 +12,4 @@ public class LeadPackageResponseDto {
   private String title;
   private String proofLink;
   private String verdict;
-
-  public LeadPackageResponseDto(Lead lead) {
-    BeanUtils.copyProperties(lead, this);
-  }
 }

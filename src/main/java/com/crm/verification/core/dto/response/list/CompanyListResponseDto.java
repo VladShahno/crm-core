@@ -2,9 +2,15 @@ package com.crm.verification.core.dto.response.list;
 
 import java.util.List;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompanyListResponseDto {
 
   private List<AddressListResponseDto> addresses;

@@ -36,12 +36,12 @@ public class PackageService {
 
     log.debug("Creating packageData with {}", keyValue(PACKAGE_ID, packageDataId));
     packageRepository.save(packageData);
-    return new PackageDataResponseDto(packageData);
+    return packageDataMapper.toPackageDataResponseDto(packageData);
   }
 
   public Page<PackageDataResponseDto> getAllPackagesByPackageId(String packageId, Pageable pageable) {
     return packageRepository.findAllByPackageId(packageId, pageable)
-        .map(PackageDataResponseDto::new);
+        .map(packageDataMapper::toPackageDataResponseDto);
   }
 
   private String generatePackageId(String packageName) {

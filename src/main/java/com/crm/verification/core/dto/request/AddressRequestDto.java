@@ -1,14 +1,16 @@
 package com.crm.verification.core.dto.request;
 
-import java.util.Date;
-
 import com.crm.verification.core.model.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class AddressRequestDto {
 
   @JsonIgnore
@@ -20,5 +22,4 @@ public class AddressRequestDto {
   private String state;
   private String postalCode;
   private String phoneNumber;
-  private Date created;
 }

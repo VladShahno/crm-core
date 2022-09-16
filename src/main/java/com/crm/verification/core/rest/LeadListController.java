@@ -26,7 +26,7 @@ public class LeadListController {
   public Page<LeadListResponseDto> getAllLeadsByPackageId(
       @Parameter(description = "Leads packageId", required = true, example = "f93h494j4k33h5")
       @PathVariable(value = "packageId")
-      @NotBlank(message = "not.blank")
+      @NotBlank(message = "{not.blank}")
       String packageId,
       @PageableDefault(sort = "verdict", size = 25) Pageable pageable) {
     return leadService.getAllLeadsByPackageId(packageId, pageable);
