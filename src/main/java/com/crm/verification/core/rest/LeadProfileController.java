@@ -1,20 +1,25 @@
 package com.crm.verification.core.rest;
 
 import java.util.Set;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.service.LeadService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,34 +33,55 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @AllArgsConstructor
 @RequestMapping(value = "/v1/profile")
+@Validated
+@Tag(name = "Lead profile Controller", description = "Provides CRUD operations for lead profile content")
 public class LeadProfileController {
 
   private LeadService leadService;
 
   @GetMapping(value = "/{email}")
   @ResponseStatus(HttpStatus.OK)
+  @PageableAsQueryParam
+  @Operation(summary = "Endpoint allows to get lead profile by email")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Lead profile has got successfully",
+      @ApiResponse(responseCode = "200", description = "Lead profile received successfully",
           content = {@Content(schema = @Schema(implementation = LeadProfileResponseDto.class))}),
-      @ApiResponse(responseCode = "404", description = "Invalid params supplied",
+      @ApiResponse(responseCode = "400", description = "Bad Request",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "401", description = "Unauthorized",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "403", description = "Forbidden",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "404", description = "Not Found",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "500", description = "Internal Server Error",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public LeadProfileResponseDto getLeadProfileById(@PathVariable @NotBlank(message = "{not.blank}") String email) {
+  public LeadProfileResponseDto getLeadProfileByEmail(
+      @Parameter(description = "Target lead's email", example = "john.smith@gmail.com")
+      @PathVariable @NotBlank(message = "{not.blank}") @Email String email) {
     return leadService.getLeadProfileByEmail(email);
   }
 
   @PostMapping("/create-profile")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Create lead profile")
+  @Operation(summary = "Endpoint allows to create lead profile")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Successfully created lead profile",
           content = {@Content(schema = @Schema(implementation = LeadListResponseDto.class))}),
-      @ApiResponse(responseCode = "401", description = "Invalid params supplied",
+      @ApiResponse(responseCode = "400", description = "Bad Request",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "401", description = "Unauthorized",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "403", description = "Forbidden",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "500", description = "Internal Server Error",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
   public LeadListResponseDto createLead(
-      @RequestBody @NotNull LeadRequestDto leadRequestDto,
-      @RequestParam(value = "packageIds") @NotNull Set<String> packageIds) {
+      @Valid @RequestBody LeadRequestDto leadRequestDto,
+      @Parameter(description = "Target Set of lead's packageIds", example = "3434gfur453h")
+      @RequestParam(value = "packageIds") Set<@NotBlank(message = "{not.blank}") String> packageIds) {
     return leadService.createLeadProfile(leadRequestDto, packageIds);
   }
 }
