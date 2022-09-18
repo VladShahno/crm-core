@@ -17,9 +17,5 @@ public class CompanyPackageResponseDto {
 
   private String name;
   private String industry;
-  private String employees;
-  private String employeesProofLink;
-  private String revenue;
-  private String revenueProofLink;
   private Set<AddressProfileResponseDto> addresses = new HashSet<>();
 }
