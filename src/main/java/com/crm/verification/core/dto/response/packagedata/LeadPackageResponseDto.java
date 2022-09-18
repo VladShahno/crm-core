@@ -1,8 +1,14 @@
 package com.crm.verification.core.dto.response.packagedata;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LeadPackageResponseDto {
 
   private CompanyPackageResponseDto company;

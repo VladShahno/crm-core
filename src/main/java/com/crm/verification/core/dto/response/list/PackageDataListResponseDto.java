@@ -12,5 +12,4 @@ import lombok.Setter;
 public class PackageDataListResponseDto {
 
   private String packageName;
-  private String packageId;
 }

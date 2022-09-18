@@ -1,28 +1,24 @@
 package com.crm.verification.core.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -39,17 +35,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Company {
 
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
+  private Set<Lead> leads = new HashSet<>();
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
+  private Set<Address> addresses = new HashSet<>();
+
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
-  @JsonIgnore
-  private List<Lead> leads = new ArrayList<>();
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
-  private List<Address> addresses = new ArrayList<>();
-
   @Column(name = "name", unique = true)
   private String name;
 
@@ -85,14 +77,14 @@ public class Company {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+    if (!(o instanceof Company))
       return false;
     Company company = (Company) o;
-    return id != null && Objects.equals(id, company.id);
+    return getName().equals(company.getName());
   }
 
   @Override
   public int hashCode() {
-    return getClass().hashCode();
+    return Objects.hash(getName());
   }
 }

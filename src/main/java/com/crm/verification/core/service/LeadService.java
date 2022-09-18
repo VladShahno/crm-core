@@ -6,16 +6,19 @@ import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_IDS;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
+import javax.transaction.Transactional;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
+import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.LeadMapper;
 import com.crm.verification.core.mapper.PackageDataMapper;
 import com.crm.verification.core.model.Lead;
+import com.crm.verification.core.model.PackageData;
 import com.crm.verification.core.repository.LeadRepository;
 import com.crm.verification.core.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 @Setter
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LeadService {
 
   private final LeadRepository leadRepository;
@@ -37,31 +41,17 @@ public class LeadService {
   private final LeadMapper leadMapper;
   private final PackageDataMapper packageDataMapper;
 
-  public LeadListResponseDto createLead(LeadRequestDto leadDto, List<String> packageIds) {
+  @Transactional
+  public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, Set<String> packageIds) {
 
     if (leadRepository.existsByEmail(leadDto.getEmail())) {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
     }
-
-    var packages = packageRepository.findAllByPackageIdIn(packageIds);
-    if (CollectionUtils.isNotEmpty(packages)) {
-      log.debug("Setting packageData with {}", keyValue(PACKAGE_IDS, packageIds));
-      leadDto.setPackageData(packages
-          .stream()
-          .map(packageDataMapper::toPackageDataListRequestDto)
-          .collect(Collectors.toSet()));
-
-      var lead = leadMapper.toLeadEntity(leadDto);
-      packages.forEach(packageData -> packageData.addLeads(lead));
-      leadRepository.save(lead);
-
-      return leadMapper.toLeadListResponseDto(lead);
-    }
-    throw new ResourceNotFoundException(PACKAGE_IDS + packageIds);
+    return saveLeadWithBiDirectionalRelation(packageIds, leadDto);
   }
 
-  public Lead updateLeadById(Long id, LeadRequestDto leadRequestDto) {
+  public Lead updateLeadProfileByEmail(String id, LeadRequestDto leadRequestDto) {
     var lead = leadRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(ID + id));
     if (leadRepository.existsByEmail(leadRequestDto.getEmail())
@@ -72,31 +62,57 @@ public class LeadService {
 
     log.debug("Updating lead with {}", keyValue(ID, id));
     var updatedLead = leadMapper.toLeadEntity(leadRequestDto);
-    updatedLead.setId(id);
+    //updatedLead.setId(id);
     return leadRepository.save(updatedLead);
   }
 
-  public void deleteLeadById(Long id) {
-    leadRepository.findById(id).ifPresentOrElse(lead -> {
-      log.debug("Deleting lead with {}", keyValue(ID, id));
-      leadRepository.deleteById(id);
+  public void deleteLeadProfileByEmail(String email) {
+    leadRepository.findById(email).ifPresentOrElse(lead -> {
+      log.debug("Deleting lead with {}", keyValue(EMAIL, email));
+      leadRepository.deleteById(email);
     }, () -> {
-      log.error(LEAD_NOT_FOUND, keyValue(ID, id));
-      throw new ResourceNotFoundException(ID + id);
+      log.error(LEAD_NOT_FOUND, keyValue(EMAIL, email));
+      throw new ResourceNotFoundException(EMAIL + email);
     });
   }
 
-  public Lead getById(Long id) {
-    log.debug("Getting lead with {}", keyValue(ID, id));
-    return leadRepository.findById(id)
+  public LeadProfileResponseDto getLeadProfileByEmail(String email) {
+    log.debug("Getting lead with {}", keyValue(EMAIL, email));
+    var lead = leadRepository.findById(email)
         .orElseThrow(() -> {
-          log.error(LEAD_NOT_FOUND, keyValue(ID, id));
-          return new ResourceNotFoundException(ID + id);
+          log.error(LEAD_NOT_FOUND, keyValue(EMAIL, email));
+          return new ResourceNotFoundException(EMAIL + email);
         });
+    return leadMapper.toLeadProfileResponseDto(lead);
   }
 
   public Page<LeadListResponseDto> getAllLeadsByPackageId(String packageId, Pageable pageable) {
     return leadRepository.findAllByPackageDataPackageId(packageId, pageable)
         .map(leadMapper::toLeadListResponseDto);
+  }
+
+  private LeadListResponseDto saveLeadWithBiDirectionalRelation(Set<String> packageIds, LeadRequestDto leadDto) {
+    var packages = new HashSet<>(packageRepository.findAllByPackageIdIn(packageIds));
+    if (CollectionUtils.isNotEmpty(packages)) {
+      log.debug("Setting packageData with {}", keyValue(PACKAGE_IDS, packageIds));
+      var leadToSave = leadMapper.toLeadEntity(leadDto);
+
+      return setBiDirectionalRelation(packages, leadToSave);
+    }
+    log.error("{} not found", keyValue(PACKAGE_IDS, packageIds));
+    throw new ResourceNotFoundException(PACKAGE_IDS + packageIds);
+  }
+
+  private LeadListResponseDto setBiDirectionalRelation(HashSet<PackageData> packages, Lead lead) {
+
+    lead.setPackageData(packages);
+
+    packages.forEach(packageData -> packageData.addLeads(lead));
+    lead.getCompany().getAddresses()
+        .forEach(address -> address.setCompany(lead.getCompany()));
+
+    leadRepository.save(lead);
+
+    return leadMapper.toLeadListResponseDto(lead);
   }
 }

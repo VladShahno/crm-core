@@ -1,19 +1,16 @@
-package com.crm.verification.core.dto.response.packagedata;
-
-import java.util.Set;
+package com.crm.verification.core.dto.response.profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
-public class PackageDataResponseDto {
+@NoArgsConstructor
+public class PackageDataProfileResponseDto {
 
   private String packageName;
   private String packageId;
-  private Set<LeadPackageResponseDto> leads;
 }

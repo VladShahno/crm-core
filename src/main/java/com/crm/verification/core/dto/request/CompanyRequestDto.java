@@ -1,9 +1,8 @@
 package com.crm.verification.core.dto.request;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,10 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CompanyRequestDto {
 
-  @JsonIgnore
-  private List<LeadRequestDto> leads = new ArrayList<>();
-
-  private List<AddressRequestDto> addresses;
+  private Set<LeadRequestDto> leads = new HashSet<>();
+  private Set<AddressRequestDto> addresses = new HashSet<>();
   private String name;
   private String industry;
   private String employees;

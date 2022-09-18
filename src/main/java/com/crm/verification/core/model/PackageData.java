@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -47,7 +46,7 @@ public class PackageData {
   @Column(name = "package_id", nullable = false, unique = true)
   private String packageId;
 
-  @ManyToMany(cascade = CascadeType.ALL)
+  @ManyToMany(cascade = CascadeType.DETACH)
   private Set<Lead> leads = new HashSet<>();
 
   @Temporal(TemporalType.TIMESTAMP)
@@ -69,14 +68,14 @@ public class PackageData {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+    if (!(o instanceof PackageData))
       return false;
     PackageData that = (PackageData) o;
-    return id != null && Objects.equals(id, that.id);
+    return getPackageName().equals(that.getPackageName()) && getPackageId().equals(that.getPackageId());
   }
 
   @Override
   public int hashCode() {
-    return getClass().hashCode();
+    return Objects.hash(getPackageName(), getPackageId());
   }
 }

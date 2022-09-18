@@ -1,12 +1,12 @@
 package com.crm.verification.core.rest;
 
-import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
-import com.crm.verification.core.model.Lead;
+import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.service.LeadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,12 +36,12 @@ public class LeadProfileController {
   @ResponseStatus(HttpStatus.OK)
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Lead profile has got successfully",
-          content = {@Content(schema = @Schema(implementation = LeadListResponseDto.class))}),
+          content = {@Content(schema = @Schema(implementation = LeadProfileResponseDto.class))}),
       @ApiResponse(responseCode = "404", description = "Invalid params supplied",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public Lead getLeadProfileById(@PathVariable @NotBlank(message = "{not.blank}") Long id) {
-    return leadService.getById(id);
+  public LeadProfileResponseDto getLeadProfileById(@PathVariable @NotBlank(message = "{not.blank}") String id) {
+    return leadService.getLeadProfileByEmail(id);
   }
 
   @PostMapping("/create-profile")
@@ -55,7 +55,7 @@ public class LeadProfileController {
   })
   public LeadListResponseDto createLead(
       @RequestBody @NotNull LeadRequestDto leadRequestDto,
-      @RequestParam(value = "packageIds") @NotNull List<String> packageIds) {
-    return leadService.createLead(leadRequestDto, packageIds);
+      @RequestParam(value = "packageIds") @NotNull Set<String> packageIds) {
+    return leadService.createLeadProfile(leadRequestDto, packageIds);
   }
 }

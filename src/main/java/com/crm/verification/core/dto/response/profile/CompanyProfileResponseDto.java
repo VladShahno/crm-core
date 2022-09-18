@@ -1,25 +1,24 @@
-package com.crm.verification.core.dto.response.packagedata;
+package com.crm.verification.core.dto.response.profile;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import com.crm.verification.core.dto.response.list.AddressListResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
-public class CompanyPackageResponseDto {
+@NoArgsConstructor
+public class CompanyProfileResponseDto {
 
-  private Set<AddressListResponseDto> addresses = new HashSet<>();
   private String name;
   private String industry;
   private String employees;
   private String employeesProofLink;
   private String revenue;
   private String revenueProofLink;
+  private Set<AddressProfileResponseDto> addresses = new HashSet<>();
 }

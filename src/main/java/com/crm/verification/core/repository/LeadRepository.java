@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface LeadRepository extends PagingAndSortingRepository<Lead, Long> {
+public interface LeadRepository extends PagingAndSortingRepository<Lead, String> {
 
   Optional<Lead> findByEmail(String email);
 

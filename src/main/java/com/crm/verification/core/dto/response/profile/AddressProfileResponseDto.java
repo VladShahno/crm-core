@@ -1,4 +1,4 @@
-package com.crm.verification.core.dto.request;
+package com.crm.verification.core.dto.response.profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,11 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class AddressRequestDto {
+@NoArgsConstructor
+public class AddressProfileResponseDto {
 
-  private CompanyRequestDto company;
   private String country;
   private String street;
   private String city;
