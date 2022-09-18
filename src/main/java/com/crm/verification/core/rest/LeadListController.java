@@ -28,7 +28,7 @@ public class LeadListController {
       @PathVariable(value = "packageId")
       @NotBlank(message = "{not.blank}")
       String packageId,
-      @PageableDefault(sort = "verdict", size = 25) Pageable pageable) {
+      @PageableDefault(sort = "firstName", size = 25) Pageable pageable) {
     return leadService.getAllLeadsByPackageId(packageId, pageable);
   }
 }

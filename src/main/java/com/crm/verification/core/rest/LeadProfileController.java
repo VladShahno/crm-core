@@ -32,7 +32,7 @@ public class LeadProfileController {
 
   private LeadService leadService;
 
-  @GetMapping(value = "/{id}")
+  @GetMapping(value = "/{email}")
   @ResponseStatus(HttpStatus.OK)
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Lead profile has got successfully",
@@ -40,8 +40,8 @@ public class LeadProfileController {
       @ApiResponse(responseCode = "404", description = "Invalid params supplied",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public LeadProfileResponseDto getLeadProfileById(@PathVariable @NotBlank(message = "{not.blank}") String id) {
-    return leadService.getLeadProfileByEmail(id);
+  public LeadProfileResponseDto getLeadProfileById(@PathVariable @NotBlank(message = "{not.blank}") String email) {
+    return leadService.getLeadProfileByEmail(email);
   }
 
   @PostMapping("/create-profile")

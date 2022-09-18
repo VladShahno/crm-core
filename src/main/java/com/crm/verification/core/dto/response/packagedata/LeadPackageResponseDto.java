@@ -11,11 +11,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LeadPackageResponseDto {
 
-  private CompanyPackageResponseDto company;
   private String firstName;
   private String lastName;
   private String email;
   private String title;
   private String proofLink;
   private String verdict;
+  private CompanyPackageResponseDto company;
 }
