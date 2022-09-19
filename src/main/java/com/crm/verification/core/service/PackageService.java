@@ -4,16 +4,17 @@ import static com.crm.verification.core.common.Constants.Logging.PACKAGE_ID;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
-import com.crm.verification.core.dto.request.packagedata.PackageDataRequestDto;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.crm.verification.core.dto.response.packagedata.PackageDataResponseDto;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.mapper.PackageDataMapper;
+import com.crm.verification.core.model.PackageData;
 import com.crm.verification.core.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,14 +25,15 @@ public class PackageService {
   private final PackageRepository packageRepository;
   private final PackageDataMapper packageDataMapper;
 
-  public PackageDataResponseDto createPackage(PackageDataRequestDto packageRequestDto) {
-    if (packageRepository.existsByPackageName(packageRequestDto.getPackageName())) {
-      log.error("{} already exists", keyValue(PACKAGE_NAME, packageRequestDto.getPackageName()));
-      throw new ResourceExistsException(PACKAGE_NAME + packageRequestDto.getPackageName());
+  public PackageDataResponseDto createPackage(String packageName) {
+    if (packageRepository.existsByPackageName(packageName)) {
+      log.error("{} already exists", keyValue(PACKAGE_NAME, packageName));
+      throw new ResourceExistsException(PACKAGE_NAME + packageName);
     }
 
-    var packageData = packageDataMapper.toPackageDataEntity(packageRequestDto);
-    var packageDataId = generatePackageId(packageRequestDto.getPackageName());
+    PackageData packageData = new PackageData();
+    packageData.setPackageName(packageName);
+    var packageDataId = generatePackageId(packageName);
     packageData.setPackageId(packageDataId);
 
     log.debug("Creating packageData with {}", keyValue(PACKAGE_ID, packageDataId));
@@ -39,13 +41,13 @@ public class PackageService {
     return packageDataMapper.toPackageDataResponseDto(packageData);
   }
 
-  public Page<PackageDataResponseDto> getAllPackagesByPackageId(String packageId, Pageable pageable) {
-    return packageRepository.findAllByPackageId(packageId, pageable)
-        .map(packageDataMapper::toPackageDataResponseDto);
+  public List<PackageDataResponseDto> getAllPackagesByPackageId(String packageId) {
+    return packageRepository.findAllByPackageIdOrderByPackageNameAsc(packageId).stream()
+        .map(packageDataMapper::toPackageDataResponseDto).collect(Collectors.toList());
   }
 
   private String generatePackageId(String packageName) {
-    var packageDataId = RandomStringUtils.random(10, packageName);
+    var packageDataId = RandomStringUtils.random(10, packageName) + RandomStringUtils.random(10, true, true);
     if (packageRepository.existsByPackageId(packageDataId)) {
       log.warn("{} already exists, generating new id", keyValue(PACKAGE_ID, packageDataId));
       return generatePackageId(packageDataId + packageName);

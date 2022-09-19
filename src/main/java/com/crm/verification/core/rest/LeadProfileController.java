@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +40,6 @@ public class LeadProfileController {
 
   @GetMapping(value = "/{email}")
   @ResponseStatus(HttpStatus.OK)
-  @PageableAsQueryParam
   @Operation(summary = "Endpoint allows to get lead profile by email")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Lead profile received successfully",
@@ -80,7 +78,7 @@ public class LeadProfileController {
   })
   public LeadListResponseDto createLead(
       @Valid @RequestBody LeadRequestDto leadRequestDto,
-      @Parameter(description = "Target Set of lead's packageIds", example = "3434gfur453h")
+      @Parameter(description = "PackageId to which the lead will be assigned", example = "ccSooifMMSyVt5FeyQfw")
       @RequestParam(value = "packageIds") Set<@NotBlank(message = "{not.blank}") String> packageIds) {
     return leadService.createLeadProfile(leadRequestDto, packageIds);
   }

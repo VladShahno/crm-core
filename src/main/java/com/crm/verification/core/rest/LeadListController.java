@@ -55,7 +55,7 @@ public class LeadListController {
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
   public Page<LeadListResponseDto> getAllLeadsByPackageId(
-      @Parameter(description = "Leads packageId", required = true, example = "f93h494j4k33h5")
+      @Parameter(description = "Leads packageId", required = true, example = "ccSooifMMSyVt5FeyQfw")
       @PathVariable(value = "packageId")
       @NotBlank(message = "{not.blank}")
       String packageId,

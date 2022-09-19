@@ -1,10 +1,8 @@
 package com.crm.verification.core.rest;
 
-import javax.validation.Valid;
+import java.util.List;
 import javax.validation.constraints.NotBlank;
-import javax.websocket.server.PathParam;
 
-import com.crm.verification.core.dto.request.packagedata.PackageDataRequestDto;
 import com.crm.verification.core.dto.response.packagedata.PackageDataResponseDto;
 import com.crm.verification.core.service.PackageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,16 +13,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.converters.models.PageableAsQueryParam;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,7 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping(value = "/v1/packages")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Package profile Controller", description = "Provides CRUD operations for package content")
+@Tag(name = "Package Controller", description = "Provides CRUD operations for package content")
 public class PackageController {
 
   private final PackageService packageService;
@@ -53,13 +48,15 @@ public class PackageController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public PackageDataResponseDto createPackage(@Valid @RequestBody PackageDataRequestDto packageDataRequestDto) {
-    return packageService.createPackage(packageDataRequestDto);
+  public PackageDataResponseDto createPackage(
+      @Parameter(description = "Package name for creating", example = "NewSoft")
+      @RequestParam
+      @NotBlank(message = "{not.blank}") String packageName) {
+    return packageService.createPackage(packageName);
   }
 
-  @GetMapping(value = "/by-package-id")
+  @GetMapping(value = "/by-package-id/{packageId}")
   @ResponseStatus(HttpStatus.OK)
-  @PageableAsQueryParam
   @Operation(summary = "Endpoint allows to get package by packageId")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Package received successfully",
@@ -75,10 +72,9 @@ public class PackageController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public Page<PackageDataResponseDto> getAllByPackageId(
-      @Parameter(description = "Target packageId", example = "3434gfur453h")
-      @NotBlank(message = "{not.blank}") @PathParam("packageId") String packageId,
-      @PageableDefault(sort = "packageName", size = 25) Pageable pageable) {
-    return packageService.getAllPackagesByPackageId(packageId, pageable);
+  public List<PackageDataResponseDto> getAllByPackageId(
+      @Parameter(description = "Target packageId", example = "ccSooifMMSyVt5FeyQfw")
+      @NotBlank(message = "{not.blank}") @PathVariable(value = "packageId") String packageId) {
+    return packageService.getAllPackagesByPackageId(packageId);
   }
 }
