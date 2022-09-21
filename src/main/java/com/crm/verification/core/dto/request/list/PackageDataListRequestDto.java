@@ -17,9 +17,4 @@ public class PackageDataListRequestDto {
   private String packageName;
   private String packageId;
   private Set<LeadRequestDto> leads = new HashSet<>();
-
-  public void addLead(LeadRequestDto lead) {
-    this.leads.add(lead);
-    lead.getPackageData().add(this);
-  }
 }

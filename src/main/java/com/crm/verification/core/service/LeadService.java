@@ -8,6 +8,7 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
@@ -87,8 +88,14 @@ public class LeadService {
   }
 
   public Page<LeadListResponseDto> getAllLeadsByPackageId(String packageId, Pageable pageable) {
-    return leadRepository.findAllByPackageDataPackageId(packageId, pageable)
-        .map(leadMapper::toLeadListResponseDto);
+
+    Page<Lead> leadsList = leadRepository.findAllByPackageDataPackageId(packageId, pageable);
+
+    leadsList.stream().forEach(lead -> lead.setVerificationResults(
+        lead.getVerificationResults().stream().filter(verificationResult -> verificationResult.getPackageData().getPackageId().equals(packageId))
+            .collect(Collectors.toSet())));
+
+    return leadsList.map(leadMapper::toLeadListResponseDto);
   }
 
   private LeadListResponseDto saveLeadWithBiDirectionalRelation(Set<String> packageIds, LeadRequestDto leadDto) {
@@ -106,6 +113,11 @@ public class LeadService {
   private LeadListResponseDto setBiDirectionalRelation(HashSet<PackageData> packages, Lead lead) {
 
     lead.setPackageData(packages);
+
+    lead.getVerificationResults().forEach(verificationResult -> {
+      verificationResult.setLead(lead);
+      verificationResult.setPackageData(packages.stream().findFirst().get());
+    });
 
     packages.forEach(packageData -> packageData.addLeads(lead));
     lead.getCompany().getAddresses()

@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -45,6 +46,9 @@ public class PackageData {
 
   @Column(name = "package_id", nullable = false, unique = true)
   private String packageId;
+
+  @OneToMany(mappedBy = "packageData", cascade = CascadeType.ALL)
+  Set<VerificationResult> verificationResults = new HashSet<>();
 
   @ManyToMany(cascade = CascadeType.DETACH)
   private Set<Lead> leads = new HashSet<>();

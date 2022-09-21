@@ -1,7 +1,9 @@
 package com.crm.verification.core.dto.response.profile;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import com.crm.verification.core.model.VerificationResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +14,7 @@ import lombok.Setter;
 public class LeadProfileResponseDto {
 
   private Set<PackageDataProfileResponseDto> packageData;
-  private String verdict;
+  Set<VerificationResult> verificationResults;
   private String firstName;
   private String lastName;
   private String email;

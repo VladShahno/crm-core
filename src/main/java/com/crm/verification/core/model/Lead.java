@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,6 +37,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Lead {
 
+  @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
+  Set<VerificationResult> verificationResults = new HashSet<>();
+
   @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
   private Company company;
 
@@ -57,9 +61,6 @@ public class Lead {
 
   @Column(name = "proof_link")
   private String proofLink;
-
-  @Column(name = "verdict")
-  private String verdict;
 
   @Column(name = "lead_comments")
   private String leadComments;

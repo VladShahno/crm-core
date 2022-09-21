@@ -1,5 +1,6 @@
 package com.crm.verification.core.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AddressRequestDto {
 
+  @JsonIgnore
   private CompanyRequestDto company;
   private String country;
   private String street;

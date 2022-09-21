@@ -14,4 +14,5 @@ public interface LeadRepository extends PagingAndSortingRepository<Lead, String>
   boolean existsByEmail(String email);
 
   Page<Lead> findAllByPackageDataPackageId(String packageId, Pageable pageable);
+
 }

@@ -2,6 +2,7 @@ package com.crm.verification.core.dto.response.list;
 
 import java.util.Set;
 
+import com.crm.verification.core.model.VerificationResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 public class LeadListResponseDto {
 
   private Set<PackageDataListResponseDto> packageData;
-  private String verdict;
+  Set<VerificationResult> verificationResults;
   private String firstName;
   private String lastName;
   private String email;

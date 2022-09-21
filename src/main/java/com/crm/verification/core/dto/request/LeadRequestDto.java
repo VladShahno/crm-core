@@ -3,7 +3,7 @@ package com.crm.verification.core.dto.request;
 import java.util.Set;
 import javax.validation.constraints.Email;
 
-import com.crm.verification.core.dto.request.list.PackageDataListRequestDto;
+import com.crm.verification.core.model.VerificationResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,14 +15,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LeadRequestDto {
 
-  private CompanyRequestDto company;
-  private Set<PackageDataListRequestDto> packageData;
+  Set<VerificationResult> verificationResults;
   private String firstName;
   private String lastName;
   @Email
   private String email;
   private String title;
   private String proofLink;
-  private String verdict;
   private String leadComments;
+  private CompanyRequestDto company;
 }
