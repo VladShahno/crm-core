@@ -3,7 +3,7 @@ package com.crm.verification.core.service;
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
 import static com.crm.verification.core.common.Constants.Logging.ID;
 import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
-import static com.crm.verification.core.common.Constants.Logging.PACKAGE_IDS;
+import static com.crm.verification.core.common.Constants.Logging.PACKAGE_NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 import java.util.stream.Collectors;
@@ -40,12 +40,12 @@ public class LeadService {
   private final PackageDataMapper packageDataMapper;
 
   @Transactional
-  public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, String packageId) {
+  public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, String packageName) {
     if (leadRepository.existsByEmail(leadDto.getEmail())) {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
     }
-    return setLeadWithBiDirectionalRelation(packageId, leadDto);
+    return setLeadWithBiDirectionalRelation(packageName, leadDto);
   }
 
   public Lead updateLeadProfileByEmail(String id, LeadRequestDto leadRequestDto) {
@@ -83,28 +83,30 @@ public class LeadService {
     return leadMapper.toLeadProfileResponseDto(lead);
   }
 
-  public Page<LeadListResponseDto> getAllLeadsByPackageIdWithAppropriateResult(String packageId, Pageable pageable) {
+  public Page<LeadListResponseDto> getAllLeadsByPackageNameWithAppropriateResult(
+      String packageName,
+      Pageable pageable) {
 
-    var leads = leadRepository.findAllByPackageDataPackageId(packageId, pageable);
+    var leads = leadRepository.findAllByPackageDataPackageName(packageName, pageable);
 
     leads.stream().forEach(lead -> lead.setVerificationResults(
         lead.getVerificationResults().stream()
-            .filter(verificationResult -> verificationResult.getPackageData().getPackageId().equals(packageId))
+            .filter(verificationResult -> verificationResult.getPackageData().getPackageName().equals(packageName))
             .collect(Collectors.toSet())));
 
     return leads.map(leadMapper::toLeadListResponseDto);
   }
 
-  private LeadListResponseDto setLeadWithBiDirectionalRelation(String packageId, LeadRequestDto leadDto) {
-    var packageByName = packageRepository.findByPackageId(packageId);
+  private LeadListResponseDto setLeadWithBiDirectionalRelation(String packageName, LeadRequestDto leadDto) {
+    var packageByName = packageRepository.findByPackageName(packageName);
     if (packageByName.isPresent()) {
-      log.debug("Setting packageData with {}", keyValue(PACKAGE_IDS, packageId));
+      log.debug("Setting packageData with {}", keyValue(PACKAGE_NAME, packageName));
       var leadToSave = leadMapper.toLeadEntity(leadDto);
 
       return saveBiDirectionalRelation(packageByName.get(), leadToSave);
     }
-    log.error("{} not found", keyValue(PACKAGE_IDS, packageId));
-    throw new ResourceNotFoundException(PACKAGE_IDS + packageId);
+    log.error("{} not found", keyValue(PACKAGE_NAME, packageName));
+    throw new ResourceNotFoundException(PACKAGE_NAME + packageName);
   }
 
   private LeadListResponseDto saveBiDirectionalRelation(PackageData packageData, Lead lead) {

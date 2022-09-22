@@ -8,8 +8,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -37,19 +35,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class PackageData {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
-  @Column(name = "package_name", nullable = false, unique = true)
-  private String packageName;
-
-  @Column(name = "package_id", nullable = false, unique = true)
-  private String packageId;
-
   @OneToMany(mappedBy = "packageData", cascade = CascadeType.ALL)
   Set<VerificationResult> verificationResults = new HashSet<>();
-
+  @Id
+  @Column(name = "package_name", nullable = false, unique = true)
+  private String packageName;
   @ManyToMany(cascade = CascadeType.DETACH)
   private Set<Lead> leads = new HashSet<>();
 
@@ -75,11 +65,11 @@ public class PackageData {
     if (!(o instanceof PackageData))
       return false;
     PackageData that = (PackageData) o;
-    return getPackageName().equals(that.getPackageName()) && getPackageId().equals(that.getPackageId());
+    return getPackageName().equals(that.getPackageName());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getPackageName(), getPackageId());
+    return Objects.hash(getPackageName());
   }
 }

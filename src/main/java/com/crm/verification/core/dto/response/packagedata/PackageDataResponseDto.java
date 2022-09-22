@@ -14,6 +14,5 @@ import lombok.Setter;
 public class PackageDataResponseDto {
 
   private String packageName;
-  private String packageId;
   private Set<LeadPackageResponseDto> leads;
 }

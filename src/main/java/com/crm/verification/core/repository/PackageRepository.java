@@ -7,15 +7,13 @@ import java.util.Set;
 import com.crm.verification.core.model.PackageData;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface PackageRepository extends PagingAndSortingRepository<PackageData, Long> {
-
-  boolean existsByPackageId(String packageId);
+public interface PackageRepository extends PagingAndSortingRepository<PackageData, String> {
 
   boolean existsByPackageName(String packageName);
 
-  Set<PackageData> findAllByPackageIdIn(Set<String> packageIds);
+  Set<PackageData> findAllByPackageNameIn(Set<String> packageName);
 
-  Optional<PackageData> findByPackageId(String packageId);
+  Optional<PackageData> findByPackageName(String packageName);
 
-  List<PackageData> findAllByPackageIdOrderByPackageNameAsc(String packageId);
+  List<PackageData> findAllByPackageNameOrderByPackageNameAsc(String packageName);
 }

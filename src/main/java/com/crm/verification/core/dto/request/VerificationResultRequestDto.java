@@ -1,4 +1,6 @@
-package com.crm.verification.core.dto.response.profile;
+package com.crm.verification.core.dto.request;
+
+import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +11,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PackageDataProfileResponseDto {
+public class VerificationResultRequestDto {
 
-  private String packageName;
+  @NotBlank
+  String result;
 }

@@ -37,13 +37,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Lead {
 
+  @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
+  Set<VerificationResult> verificationResults = new HashSet<>();
   @Id
   @Column(name = "email", unique = true, nullable = false)
   private String email;
-
-  @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
-  Set<VerificationResult> verificationResults = new HashSet<>();
-
   @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
   private Company company;
 

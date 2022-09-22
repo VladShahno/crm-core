@@ -36,10 +36,10 @@ public class LeadListController {
 
   private final LeadService leadService;
 
-  @GetMapping(value = "/{packageId}")
+  @GetMapping(value = "/{packageName}")
   @ResponseStatus(HttpStatus.OK)
   @PageableAsQueryParam
-  @Operation(summary = "Endpoint allows to get leads by packageId")
+  @Operation(summary = "Endpoint allows to get leads by packageName")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Leads received successfully",
           content = {@Content(schema = @Schema(implementation = LeadProfileResponseDto.class))}),
@@ -54,12 +54,12 @@ public class LeadListController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public Page<LeadListResponseDto> getAllLeadsByPackageId(
-      @Parameter(description = "Leads packageId", required = true, example = "ccSooifMMSyVt5FeyQfw")
-      @PathVariable(value = "packageId")
+  public Page<LeadListResponseDto> getAllLeadsByPackageName(
+      @Parameter(description = "Leads packageName", required = true, example = "ccSooifMMSyVt5FeyQfw")
+      @PathVariable(value = "packageName")
       @NotBlank(message = "{not.blank}")
-      String packageId,
+      String packageName,
       @PageableDefault(sort = "firstName", size = 25) Pageable pageable) {
-    return leadService.getAllLeadsByPackageIdWithAppropriateResult(packageId, pageable);
+    return leadService.getAllLeadsByPackageNameWithAppropriateResult(packageName, pageable);
   }
 }

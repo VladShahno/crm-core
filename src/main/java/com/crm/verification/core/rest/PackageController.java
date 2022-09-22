@@ -55,9 +55,9 @@ public class PackageController {
     return packageService.createPackage(packageName);
   }
 
-  @GetMapping(value = "/by-package-id/{packageId}")
+  @GetMapping(value = "/by-package-name/{packageName}")
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Endpoint allows to get package by packageId")
+  @Operation(summary = "Endpoint allows to get package by packageName")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Package received successfully",
           content = {@Content(schema = @Schema(implementation = PackageDataResponseDto.class))}),
@@ -72,9 +72,9 @@ public class PackageController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
-  public List<PackageDataResponseDto> getAllByPackageId(
-      @Parameter(description = "Target packageId", example = "ccSooifMMSyVt5FeyQfw")
-      @NotBlank(message = "{not.blank}") @PathVariable(value = "packageId") String packageId) {
-    return packageService.getAllPackagesByPackageId(packageId);
+  public List<PackageDataResponseDto> getAllByPackageName(
+      @Parameter(description = "Target packageName", example = "ccSooifMMSyVt5FeyQfw")
+      @NotBlank(message = "{not.blank}") @PathVariable(value = "packageName") String packageName) {
+    return packageService.getAllPackagesByPackageName(packageName);
   }
 }

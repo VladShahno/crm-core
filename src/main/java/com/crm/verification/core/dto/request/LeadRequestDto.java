@@ -3,7 +3,6 @@ package com.crm.verification.core.dto.request;
 import java.util.Set;
 import javax.validation.constraints.Email;
 
-import com.crm.verification.core.model.VerificationResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LeadRequestDto {
 
-  Set<VerificationResult> verificationResults;
+  Set<VerificationResultRequestDto> verificationResults;
   private String firstName;
   private String lastName;
   @Email

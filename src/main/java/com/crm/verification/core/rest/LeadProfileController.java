@@ -1,6 +1,5 @@
 package com.crm.verification.core.rest;
 
-import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -78,8 +77,8 @@ public class LeadProfileController {
   })
   public LeadListResponseDto createLead(
       @RequestBody @Valid LeadRequestDto leadRequestDto,
-      @Parameter(description = "PackageId to which the lead will be assigned", example = "ccSooifMMSyVt5FeyQfw")
-      @RequestParam(value = "packageId") @NotBlank(message = "{not.blank}") String packageId) {
-    return leadService.createLeadProfile(leadRequestDto, packageId);
+      @Parameter(description = "Package name to which the lead will be assigned", example = "ccSooifMMSyVt5FeyQfw")
+      @RequestParam(value = "packageName") @NotBlank(message = "{not.blank}") String packageName) {
+    return leadService.createLeadProfile(leadRequestDto, packageName);
   }
 }
