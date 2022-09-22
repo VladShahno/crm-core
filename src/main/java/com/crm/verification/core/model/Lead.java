@@ -37,6 +37,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Lead {
 
+  @Id
+  @Column(name = "email", unique = true, nullable = false)
+  private String email;
+
   @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
   Set<VerificationResult> verificationResults = new HashSet<>();
 
@@ -51,10 +55,6 @@ public class Lead {
 
   @Column(name = "last_name")
   private String lastName;
-
-  @Id
-  @Column(name = "email", unique = true, nullable = false)
-  private String email;
 
   @Column(name = "title")
   private String title;
@@ -74,6 +74,11 @@ public class Lead {
   @Column(name = "updated")
   @LastModifiedDate
   private Date updated;
+
+  public void addPackage(PackageData packageData) {
+    this.packageData.add(packageData);
+    //lead.getPackageData().add(this);
+  }
 
   @Override
   public boolean equals(Object o) {

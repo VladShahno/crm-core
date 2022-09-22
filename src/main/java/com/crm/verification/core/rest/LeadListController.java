@@ -60,6 +60,6 @@ public class LeadListController {
       @NotBlank(message = "{not.blank}")
       String packageId,
       @PageableDefault(sort = "firstName", size = 25) Pageable pageable) {
-    return leadService.getAllLeadsByPackageId(packageId, pageable);
+    return leadService.getAllLeadsByPackageIdWithAppropriateResult(packageId, pageable);
   }
 }

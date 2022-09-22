@@ -73,6 +73,11 @@ public class Company {
   @LastModifiedDate
   private Date updated;
 
+  public void addLeads(Lead lead) {
+    this.leads.add(lead);
+    //lead.getPackageData().add(this);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)

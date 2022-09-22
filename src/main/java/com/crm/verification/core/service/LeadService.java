@@ -6,8 +6,6 @@ import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_IDS;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
@@ -25,7 +23,6 @@ import com.crm.verification.core.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,13 +40,12 @@ public class LeadService {
   private final PackageDataMapper packageDataMapper;
 
   @Transactional
-  public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, Set<String> packageIds) {
-
+  public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, String packageId) {
     if (leadRepository.existsByEmail(leadDto.getEmail())) {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
     }
-    return saveLeadWithBiDirectionalRelation(packageIds, leadDto);
+    return setLeadWithBiDirectionalRelation(packageId, leadDto);
   }
 
   public Lead updateLeadProfileByEmail(String id, LeadRequestDto leadRequestDto) {
@@ -87,44 +83,44 @@ public class LeadService {
     return leadMapper.toLeadProfileResponseDto(lead);
   }
 
-  public Page<LeadListResponseDto> getAllLeadsByPackageId(String packageId, Pageable pageable) {
+  public Page<LeadListResponseDto> getAllLeadsByPackageIdWithAppropriateResult(String packageId, Pageable pageable) {
 
-    Page<Lead> leadsList = leadRepository.findAllByPackageDataPackageId(packageId, pageable);
+    var leads = leadRepository.findAllByPackageDataPackageId(packageId, pageable);
 
-    leadsList.stream().forEach(lead -> lead.setVerificationResults(
-        lead.getVerificationResults().stream().filter(verificationResult -> verificationResult.getPackageData().getPackageId().equals(packageId))
+    leads.stream().forEach(lead -> lead.setVerificationResults(
+        lead.getVerificationResults().stream()
+            .filter(verificationResult -> verificationResult.getPackageData().getPackageId().equals(packageId))
             .collect(Collectors.toSet())));
 
-    return leadsList.map(leadMapper::toLeadListResponseDto);
+    return leads.map(leadMapper::toLeadListResponseDto);
   }
 
-  private LeadListResponseDto saveLeadWithBiDirectionalRelation(Set<String> packageIds, LeadRequestDto leadDto) {
-    var packages = new HashSet<>(packageRepository.findAllByPackageIdIn(packageIds));
-    if (CollectionUtils.isNotEmpty(packages)) {
-      log.debug("Setting packageData with {}", keyValue(PACKAGE_IDS, packageIds));
+  private LeadListResponseDto setLeadWithBiDirectionalRelation(String packageId, LeadRequestDto leadDto) {
+    var packageByName = packageRepository.findByPackageId(packageId);
+    if (packageByName.isPresent()) {
+      log.debug("Setting packageData with {}", keyValue(PACKAGE_IDS, packageId));
       var leadToSave = leadMapper.toLeadEntity(leadDto);
 
-      return setBiDirectionalRelation(packages, leadToSave);
+      return saveBiDirectionalRelation(packageByName.get(), leadToSave);
     }
-    log.error("{} not found", keyValue(PACKAGE_IDS, packageIds));
-    throw new ResourceNotFoundException(PACKAGE_IDS + packageIds);
+    log.error("{} not found", keyValue(PACKAGE_IDS, packageId));
+    throw new ResourceNotFoundException(PACKAGE_IDS + packageId);
   }
 
-  private LeadListResponseDto setBiDirectionalRelation(HashSet<PackageData> packages, Lead lead) {
+  private LeadListResponseDto saveBiDirectionalRelation(PackageData packageData, Lead lead) {
 
-    lead.setPackageData(packages);
+    lead.addPackage(packageData);
+    packageData.addLeads(lead);
+
+    lead.getCompany().getAddresses()
+        .forEach(address -> address.setCompany(lead.getCompany()));
+    lead.getCompany().addLeads(lead);
 
     lead.getVerificationResults().forEach(verificationResult -> {
       verificationResult.setLead(lead);
-      verificationResult.setPackageData(packages.stream().findFirst().get());
+      verificationResult.setPackageData(packageData);
     });
 
-    packages.forEach(packageData -> packageData.addLeads(lead));
-    lead.getCompany().getAddresses()
-        .forEach(address -> address.setCompany(lead.getCompany()));
-
-    leadRepository.save(lead);
-
-    return leadMapper.toLeadListResponseDto(lead);
+    return leadMapper.toLeadListResponseDto(leadRepository.save(lead));
   }
 }

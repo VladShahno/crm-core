@@ -77,9 +77,9 @@ public class LeadProfileController {
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
   public LeadListResponseDto createLead(
-      @Valid @RequestBody LeadRequestDto leadRequestDto,
+      @RequestBody @Valid LeadRequestDto leadRequestDto,
       @Parameter(description = "PackageId to which the lead will be assigned", example = "ccSooifMMSyVt5FeyQfw")
-      @RequestParam(value = "packageIds") Set<@NotBlank(message = "{not.blank}") String> packageIds) {
-    return leadService.createLeadProfile(leadRequestDto, packageIds);
+      @RequestParam(value = "packageId") @NotBlank(message = "{not.blank}") String packageId) {
+    return leadService.createLeadProfile(leadRequestDto, packageId);
   }
 }
