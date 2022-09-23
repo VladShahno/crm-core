@@ -3,9 +3,9 @@ package com.crm.verification.core.repository;
 import java.util.Optional;
 
 import com.crm.verification.core.model.Company;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface CompanyRepository extends JpaRepository<Company, String> {
+public interface CompanyRepository extends PagingAndSortingRepository<Company, String> {
 
   boolean existsByName(String name);
 

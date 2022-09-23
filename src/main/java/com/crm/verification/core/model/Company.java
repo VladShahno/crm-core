@@ -35,12 +35,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Company {
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
-  private Set<Lead> leads = new HashSet<>();
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
-  private Set<Address> addresses = new HashSet<>();
-
   @Id
   @Column(name = "name", unique = true)
   private String name;
@@ -62,6 +56,12 @@ public class Company {
 
   @Column(name = "company_comments")
   private String companyComments;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
+  private Set<Lead> leads = new HashSet<>();
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
+  private Set<Address> addresses = new HashSet<>();
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created", updatable = false)
