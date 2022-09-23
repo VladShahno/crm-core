@@ -5,6 +5,7 @@ import static com.crm.verification.core.common.Constants.Logging.PACKAGE_NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,8 +48,20 @@ public class PackageService {
     var targetPackage = packageRepository.findByPackageName(packageName);
     var addingLeads = leadRepository.findAllByEmailIn(leadEmails);
 
-    if (CollectionUtils.isNotEmpty(addingLeads) && targetPackage.isPresent()) {
+    return validateWithSavingLeadsToPackage(addingLeads, targetPackage, leadEmails);
+  }
 
+  public List<PackageDataResponseDto> getAllPackagesByPackageName(String packageName) {
+    return packageRepository.findAllByPackageNameOrderByPackageNameAsc(packageName).stream()
+        .map(packageDataMapper::toPackageDataResponseDto).collect(Collectors.toList());
+  }
+
+  private PackageDataResponseDto validateWithSavingLeadsToPackage(
+      List<Lead> addingLeads,
+      Optional<PackageData> targetPackage,
+      Set<String> leadEmails) {
+
+    if (CollectionUtils.isNotEmpty(addingLeads) && targetPackage.isPresent()) {
       var leadEmailsFromTargetPackage = targetPackage.get().getLeads()
           .stream()
           .map(Lead::getEmail)
@@ -57,17 +70,15 @@ public class PackageService {
         log.error("Package already have leads with {}", keyValue(EMAIL, leadEmails));
         throw new ResourceExistsException(EMAIL + leadEmails);
       }
-
-      log.debug("Adding leads {} to {}", keyValue(EMAIL, leadEmails), keyValue(PACKAGE_NAME, packageName));
-      addingLeads.forEach(lead -> targetPackage.get().addLeads(lead));
-      return packageDataMapper.toPackageDataResponseDto(packageRepository.save(targetPackage.get()));
+      return saveLeadsToPackage(addingLeads, targetPackage);
     }
-    log.error("{} or {} not found", keyValue(PACKAGE_NAME, packageName), keyValue(EMAIL, leadEmails));
+    log.error("Target package or leads not found");
     throw new ResourceNotFoundException();
   }
 
-  public List<PackageDataResponseDto> getAllPackagesByPackageName(String packageName) {
-    return packageRepository.findAllByPackageNameOrderByPackageNameAsc(packageName).stream()
-        .map(packageDataMapper::toPackageDataResponseDto).collect(Collectors.toList());
+  private PackageDataResponseDto saveLeadsToPackage(List<Lead> addingLeads, Optional<PackageData> targetPackage) {
+    log.debug("Adding leads {} to package", keyValue(EMAIL, addingLeads.stream().map(Lead::getEmail)));
+    addingLeads.forEach(lead -> targetPackage.get().addLeads(lead));
+    return packageDataMapper.toPackageDataResponseDto(packageRepository.save(targetPackage.get()));
   }
 }
