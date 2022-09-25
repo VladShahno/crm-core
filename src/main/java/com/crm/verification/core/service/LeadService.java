@@ -1,23 +1,26 @@
 package com.crm.verification.core.service;
 
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
-import static com.crm.verification.core.common.Constants.Logging.ID;
 import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
+import static com.crm.verification.core.common.Constants.Logging.NOT_FOUND_ERROR_KEY_VALUE;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_NAME;
+import static com.crm.verification.core.common.Constants.Logging.VERIFICATION_RESULT;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import com.crm.verification.core.dto.request.LeadRequestDto;
+import com.crm.verification.core.dto.request.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.LeadMapper;
-import com.crm.verification.core.mapper.PackageDataMapper;
 import com.crm.verification.core.model.Lead;
 import com.crm.verification.core.model.PackageData;
+import com.crm.verification.core.model.VerificationResult;
 import com.crm.verification.core.repository.LeadRepository;
 import com.crm.verification.core.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +40,6 @@ public class LeadService {
   private final LeadRepository leadRepository;
   private final PackageRepository packageRepository;
   private final LeadMapper leadMapper;
-  private final PackageDataMapper packageDataMapper;
 
   @Transactional
   public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, String packageName) {
@@ -45,26 +47,30 @@ public class LeadService {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
     }
-    return setLeadWithBiDirectionalRelation(packageName, leadDto);
+    return setBiDirectionalRelationToLeadWithSaving(packageName, leadDto);
   }
 
-  public Lead updateLeadProfileByEmail(String id, LeadRequestDto leadRequestDto) {
-    var lead = leadRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(ID + id));
-    if (leadRepository.existsByEmail(leadRequestDto.getEmail())
-        && !leadRequestDto.getEmail().equals(lead.getEmail())) {
-      log.error("Can't update lead with existing {}", keyValue(EMAIL, leadRequestDto.getEmail()));
-      throw new ResourceExistsException(EMAIL + leadRequestDto.getEmail());
-    }
+  public LeadProfileResponseDto updateLeadProfileByEmailAndPackageName(
+      String packageName,
+      String email,
+      LeadUpdateRequestDto leadRequestDto) {
 
-    log.debug("Updating lead with {}", keyValue(ID, id));
+    var leadByEmail = findLeadByEmailAndPackageName(email, packageName);
+    var verificationResult = updateVerificationResult(leadByEmail.getVerificationResults(), packageName,
+        leadRequestDto.getVerificationResults());
+
     var updatedLead = leadMapper.toLeadEntity(leadRequestDto);
-    //updatedLead.setId(id);
-    return leadRepository.save(updatedLead);
+    updatedLead.setEmail(email);
+    updatedLead.getCompany().setName(leadByEmail.getCompany().getName());
+    updatedLead.getCompany().getAddresses().forEach(address -> address.setCompany(updatedLead.getCompany()));
+    updatedLead.addVerificationResult(verificationResult);
+
+    log.debug("Updating lead with {}", keyValue(EMAIL, email));
+    return leadMapper.toLeadProfileResponseDto(leadRepository.save(updatedLead));
   }
 
   public void deleteLeadProfileByEmail(String email) {
-    leadRepository.findById(email).ifPresentOrElse(lead -> {
+    leadRepository.findByEmail(email).ifPresentOrElse(lead -> {
       log.debug("Deleting lead with {}", keyValue(EMAIL, email));
       leadRepository.deleteById(email);
     }, () -> {
@@ -97,7 +103,7 @@ public class LeadService {
     return leads.map(leadMapper::toLeadListResponseDto);
   }
 
-  private LeadListResponseDto setLeadWithBiDirectionalRelation(String packageName, LeadRequestDto leadDto) {
+  private LeadListResponseDto setBiDirectionalRelationToLeadWithSaving(String packageName, LeadRequestDto leadDto) {
     var packageByName = packageRepository.findByPackageName(packageName);
     if (packageByName.isPresent()) {
       log.debug("Setting packageData with {}", keyValue(PACKAGE_NAME, packageName));
@@ -105,7 +111,7 @@ public class LeadService {
 
       return saveBiDirectionalRelation(packageByName.get(), leadToSave);
     }
-    log.error("{} not found", keyValue(PACKAGE_NAME, packageName));
+    log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(PACKAGE_NAME, packageName));
     throw new ResourceNotFoundException(PACKAGE_NAME + packageName);
   }
 
@@ -124,5 +130,33 @@ public class LeadService {
     });
 
     return leadMapper.toLeadListResponseDto(leadRepository.save(lead));
+  }
+
+  private VerificationResult updateVerificationResult(
+      Set<VerificationResult> verificationResultFromRepository,
+      String packageName,
+      String updatedVerificationResult) {
+
+    var verificationResultByEmailAndPackageName = verificationResultFromRepository
+        .stream()
+        .filter(verificationResult -> verificationResult.getPackageData().getPackageName().equals(packageName))
+        .findFirst();
+
+    if (verificationResultByEmailAndPackageName.isPresent()) {
+      verificationResultByEmailAndPackageName.ifPresent(verificationResult ->
+          verificationResult.setResult(updatedVerificationResult));
+      log.debug("Update to {}", keyValue(VERIFICATION_RESULT, updatedVerificationResult));
+      return verificationResultByEmailAndPackageName.get();
+    }
+    log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(VERIFICATION_RESULT, verificationResultFromRepository));
+    throw new ResourceNotFoundException(VERIFICATION_RESULT + verificationResultFromRepository);
+  }
+
+  private Lead findLeadByEmailAndPackageName(String email, String packageName) {
+    return leadRepository.findByEmailAndPackageDataPackageName(email, packageName)
+        .orElseThrow(() -> {
+          log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(EMAIL, email));
+          throw new ResourceNotFoundException(EMAIL + email);
+        });
   }
 }

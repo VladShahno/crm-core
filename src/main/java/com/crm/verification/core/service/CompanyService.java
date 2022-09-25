@@ -55,13 +55,13 @@ public class CompanyService {
     return companyMapper.toCompanyProfileResponseDto(companyRepository.save(updatedCompany));
   }
 
-  public void deleteCompanyByName(String name) {
-    companyRepository.findByName(name).ifPresentOrElse(company -> {
-      log.debug(DELETING_COMPANY, keyValue(NAME, name));
-      companyRepository.deleteByName(name);
+  public void deleteCompanyByName(String companyName) {
+    companyRepository.findByName(companyName).ifPresentOrElse(company -> {
+      log.debug(DELETING_COMPANY, keyValue(NAME, companyName));
+      companyRepository.deleteByName(companyName);
     }, () -> {
-      log.error(COMPANY_NOT_FOUND, keyValue(NAME, name));
-      throw new ResourceNotFoundException(NAME + name);
+      log.error(COMPANY_NOT_FOUND, keyValue(NAME, companyName));
+      throw new ResourceNotFoundException(NAME + companyName);
     });
   }
 

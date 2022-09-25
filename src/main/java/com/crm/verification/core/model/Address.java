@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -18,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -34,6 +35,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
     allowGetters = true
 )
 public class Address {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(name = "phone_number")
+  private String phoneNumber;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "company")
@@ -54,10 +62,6 @@ public class Address {
   @Column(name = "postal_code")
   private String postalCode;
 
-  @Id
-  @Column(name = "phone_number")
-  private String phoneNumber;
-
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created", updatable = false)
   @CreatedDate
@@ -72,25 +76,35 @@ public class Address {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+    if (!(o instanceof Address))
       return false;
     Address address = (Address) o;
-    return phoneNumber != null && Objects.equals(phoneNumber, address.phoneNumber);
+    return getCompany().equals(address.getCompany()) && getCountry().equals(address.getCountry()) &&
+        getStreet().equals(address.getStreet()) && getCity().equals(address.getCity()) &&
+        Objects.equals(getState(), address.getState()) &&
+        Objects.equals(getPostalCode(), address.getPostalCode()) &&
+        getPhoneNumber().equals(address.getPhoneNumber());
   }
 
   @Override
   public int hashCode() {
-    return getClass().hashCode();
+    return Objects.hash(getCompany(), getCountry(), getStreet(), getCity(), getState(), getPostalCode(),
+        getPhoneNumber());
   }
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "(" +
-        "phoneNumber = " + phoneNumber + ", " +
-        "country = " + country + ", " +
-        "street = " + street + ", " +
-        "city = " + city + ", " +
-        "state = " + state + ", " +
-        "postalCode = " + postalCode + ")";
+    return "Address{" +
+        "id=" + id +
+        ", phoneNumber='" + phoneNumber + '\'' +
+        ", company=" + company +
+        ", country='" + country + '\'' +
+        ", street='" + street + '\'' +
+        ", city='" + city + '\'' +
+        ", state='" + state + '\'' +
+        ", postalCode='" + postalCode + '\'' +
+        ", created=" + created +
+        ", updated=" + updated +
+        '}';
   }
 }

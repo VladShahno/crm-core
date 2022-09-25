@@ -37,7 +37,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Lead {
 
-  @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "lead", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   Set<VerificationResult> verificationResults = new HashSet<>();
   @Id
   @Column(name = "email", unique = true, nullable = false)
@@ -76,6 +76,10 @@ public class Lead {
   public void addPackage(PackageData packageData) {
     this.packageData.add(packageData);
     //lead.getPackageData().add(this);
+  }
+
+  public void addVerificationResult(VerificationResult verificationResult) {
+    this.verificationResults.add(verificationResult);
   }
 
   @Override

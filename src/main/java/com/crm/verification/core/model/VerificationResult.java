@@ -1,6 +1,7 @@
 package com.crm.verification.core.model;
 
 import java.util.Date;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -14,7 +15,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -59,4 +59,20 @@ public class VerificationResult {
   @Column(name = "updated")
   @LastModifiedDate
   private Date updated;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof VerificationResult))
+      return false;
+    VerificationResult that = (VerificationResult) o;
+    return getId().equals(that.getId()) && getLead().equals(that.getLead()) &&
+        getPackageData().equals(that.getPackageData()) && getResult().equals(that.getResult());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId(), getLead(), getPackageData(), getResult());
+  }
 }

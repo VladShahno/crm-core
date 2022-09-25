@@ -11,6 +11,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface LeadRepository extends PagingAndSortingRepository<Lead, String> {
 
+  Optional<Lead> findByEmailAndPackageDataPackageName(String email, String packageName);
+
   Optional<Lead> findByEmail(String email);
 
   boolean existsByEmail(String email);

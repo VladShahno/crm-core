@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AddressListResponseDto {
 
+  private Long id;
   private String country;
   private String city;
 }

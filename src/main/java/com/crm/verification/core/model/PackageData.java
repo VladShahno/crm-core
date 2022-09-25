@@ -40,7 +40,7 @@ public class PackageData {
   @Id
   @Column(name = "package_name", nullable = false, unique = true)
   private String packageName;
-  @ManyToMany(cascade = CascadeType.DETACH)
+  @ManyToMany(cascade = CascadeType.ALL)
   private Set<Lead> leads = new HashSet<>();
 
   @Temporal(TemporalType.TIMESTAMP)

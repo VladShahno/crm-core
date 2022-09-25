@@ -3,7 +3,7 @@ package com.crm.verification.core.dto.request.company.request;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.crm.verification.core.dto.request.AddressRequestDto;
+import com.crm.verification.core.dto.request.AddressUpdateRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,5 +21,5 @@ public class CompanyUpdatedRequestDto {
   private String revenue;
   private String revenueProofLink;
   private String companyComments;
-  private Set<AddressRequestDto> addresses = new HashSet<>();
+  private Set<AddressUpdateRequestDto> addresses = new HashSet<>();
 }
