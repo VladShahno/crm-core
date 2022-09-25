@@ -4,7 +4,7 @@ import com.crm.verification.core.dto.request.CompanyRequestDto;
 import com.crm.verification.core.dto.request.company.request.CompanyUpdatedRequestDto;
 import com.crm.verification.core.dto.request.company.response.CompanyCreateResponseDto;
 import com.crm.verification.core.dto.request.company.response.CompanyProfileResponseDto;
-import com.crm.verification.core.model.Company;
+import com.crm.verification.core.entity.Company;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

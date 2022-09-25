@@ -4,7 +4,7 @@ import com.crm.verification.core.dto.request.LeadRequestDto;
 import com.crm.verification.core.dto.request.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
-import com.crm.verification.core.model.Lead;
+import com.crm.verification.core.entity.Lead;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

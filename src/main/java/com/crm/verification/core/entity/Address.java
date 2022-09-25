@@ -1,4 +1,4 @@
-package com.crm.verification.core.model;
+package com.crm.verification.core.entity;
 
 import java.util.Date;
 import java.util.Objects;
@@ -43,7 +43,7 @@ public class Address {
   @Column(name = "phone_number")
   private String phoneNumber;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne
   @JoinColumn(name = "company")
   private Company company;
 

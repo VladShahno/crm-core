@@ -15,12 +15,12 @@ import com.crm.verification.core.dto.request.LeadRequestDto;
 import com.crm.verification.core.dto.request.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
+import com.crm.verification.core.entity.Lead;
+import com.crm.verification.core.entity.PackageData;
+import com.crm.verification.core.entity.VerificationResult;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.LeadMapper;
-import com.crm.verification.core.model.Lead;
-import com.crm.verification.core.model.PackageData;
-import com.crm.verification.core.model.VerificationResult;
 import com.crm.verification.core.repository.LeadRepository;
 import com.crm.verification.core.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,10 +69,12 @@ public class LeadService {
     return leadMapper.toLeadProfileResponseDto(leadRepository.save(updatedLead));
   }
 
+  @Transactional
   public void deleteLeadProfileByEmail(String email) {
     leadRepository.findByEmail(email).ifPresentOrElse(lead -> {
       log.debug("Deleting lead with {}", keyValue(EMAIL, email));
-      leadRepository.deleteById(email);
+      lead.getPackageData().forEach(packageData -> packageData.removeLead(lead));
+      leadRepository.deleteByEmail(email);
     }, () -> {
       log.error(LEAD_NOT_FOUND, keyValue(EMAIL, email));
       throw new ResourceNotFoundException(EMAIL + email);

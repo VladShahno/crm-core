@@ -1,4 +1,4 @@
-package com.crm.verification.core.model;
+package com.crm.verification.core.entity;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ public class PackageData {
   @Id
   @Column(name = "package_name", nullable = false, unique = true)
   private String packageName;
-  @ManyToMany(cascade = CascadeType.ALL)
+  @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   private Set<Lead> leads = new HashSet<>();
 
   @Temporal(TemporalType.TIMESTAMP)
@@ -58,6 +58,11 @@ public class PackageData {
     //lead.getPackageData().add(this);
   }
 
+  public void removeLead(Lead lead) {
+    this.leads.remove(lead);
+    lead.getPackageData().remove(this);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)
@@ -71,5 +76,16 @@ public class PackageData {
   @Override
   public int hashCode() {
     return Objects.hash(getPackageName());
+  }
+
+  @Override
+  public String toString() {
+    return "PackageData{" +
+        "verificationResults=" + verificationResults +
+        ", packageName='" + packageName + '\'' +
+        ", leads=" + leads +
+        ", created=" + created +
+        ", updated=" + updated +
+        '}';
   }
 }

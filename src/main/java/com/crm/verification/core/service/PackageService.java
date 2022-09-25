@@ -13,8 +13,8 @@ import com.crm.verification.core.dto.response.packagedata.PackageDataResponseDto
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.PackageDataMapper;
-import com.crm.verification.core.model.Lead;
-import com.crm.verification.core.model.PackageData;
+import com.crm.verification.core.entity.Lead;
+import com.crm.verification.core.entity.PackageData;
 import com.crm.verification.core.repository.LeadRepository;
 import com.crm.verification.core.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;

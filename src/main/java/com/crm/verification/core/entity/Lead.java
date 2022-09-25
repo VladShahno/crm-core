@@ -1,4 +1,4 @@
-package com.crm.verification.core.model;
+package com.crm.verification.core.entity;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -37,15 +37,19 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class Lead {
 
-  @OneToMany(mappedBy = "lead", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+  @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
   Set<VerificationResult> verificationResults = new HashSet<>();
   @Id
   @Column(name = "email", unique = true, nullable = false)
   private String email;
-  @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {
+      CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH
+  })
   private Company company;
 
-  @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "leads")
+  @ManyToMany(fetch = FetchType.LAZY, cascade = {
+      CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH,
+  }, mappedBy = "leads")
   private Set<PackageData> packageData = new HashSet<>();
 
   @Column(name = "first_name")
@@ -78,6 +82,11 @@ public class Lead {
     //lead.getPackageData().add(this);
   }
 
+  public void removePackage(PackageData packageData) {
+    this.packageData.remove(packageData);
+    packageData.getLeads().remove(this);
+  }
+
   public void addVerificationResult(VerificationResult verificationResult) {
     this.verificationResults.add(verificationResult);
   }
@@ -95,5 +104,22 @@ public class Lead {
   @Override
   public int hashCode() {
     return Objects.hash(getEmail());
+  }
+
+  @Override
+  public String toString() {
+    return "Lead{" +
+        "verificationResults=" + verificationResults +
+        ", email='" + email + '\'' +
+        ", company=" + company +
+        ", packageData=" + packageData +
+        ", firstName='" + firstName + '\'' +
+        ", lastName='" + lastName + '\'' +
+        ", title='" + title + '\'' +
+        ", proofLink='" + proofLink + '\'' +
+        ", leadComments='" + leadComments + '\'' +
+        ", created=" + created +
+        ", updated=" + updated +
+        '}';
   }
 }

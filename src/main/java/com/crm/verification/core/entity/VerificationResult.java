@@ -1,4 +1,4 @@
-package com.crm.verification.core.model;
+package com.crm.verification.core.entity;
 
 import java.util.Date;
 import java.util.Objects;

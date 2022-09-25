@@ -1,4 +1,4 @@
-package com.crm.verification.core.model;
+package com.crm.verification.core.entity;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -57,7 +57,9 @@ public class Company {
   @Column(name = "company_comments")
   private String companyComments;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
+  @OneToMany(fetch = FetchType.LAZY, cascade = {
+      CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH
+  }, mappedBy = "company")
   private Set<Lead> leads = new HashSet<>();
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "company")
