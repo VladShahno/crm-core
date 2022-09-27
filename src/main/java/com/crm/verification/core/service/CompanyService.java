@@ -48,11 +48,11 @@ public class CompanyService {
   public CompanyProfileResponseDto updateCompanyByName(String companyName, CompanyUpdatedRequestDto companyDto) {
 
     var updatedCompany = companyMapper.toCompanyEntity(companyDto);
-
     companyRepository.findByName(companyName)
         .ifPresentOrElse(company -> {
           log.debug("Updating company with {}", keyValue(NAME, companyName));
           updatedCompany.setName(companyName);
+          updatedCompany.getAddresses().forEach(address -> address.setCompany(updatedCompany));
           companyRepository.save(updatedCompany);
         }, () -> {
           log.error("{} not found", keyValue(NAME, companyName));
@@ -71,9 +71,9 @@ public class CompanyService {
     });
   }
 
-  public CompanyProfileResponseDto getCompanyByName(String companyName) {
+  public CompanyAllResponseDto getCompanyByName(String companyName) {
     log.debug("Getting company with {}", keyValue(NAME, companyName));
-    return companyRepository.findByName(companyName).map(companyMapper::toCompanyProfileResponseDto)
+    return companyRepository.findByName(companyName).map(companyMapper::toCompanyAllResponseDto)
         .orElseThrow(() -> {
           log.error(COMPANY_NOT_FOUND, keyValue(NAME, companyName));
           return new ResourceNotFoundException(NAME + companyName);
