@@ -47,7 +47,7 @@ public class LeadService {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
     }
-    return setBiDirectionalRelationToLeadWithSaving(packageName, leadDto);
+    return saveLeadToPackage(packageName, leadDto);
   }
 
   public LeadProfileResponseDto updateLeadProfileByEmailAndPackageName(
@@ -105,19 +105,21 @@ public class LeadService {
     return leads.map(leadMapper::toLeadListResponseDto);
   }
 
-  private LeadListResponseDto setBiDirectionalRelationToLeadWithSaving(String packageName, LeadRequestDto leadDto) {
+  private LeadListResponseDto saveLeadToPackage(String packageName, LeadRequestDto leadDto) {
     var packageByName = packageRepository.findByPackageName(packageName);
     if (packageByName.isPresent()) {
       log.debug("Setting packageData with {}", keyValue(PACKAGE_NAME, packageName));
       var leadToSave = leadMapper.toLeadEntity(leadDto);
 
-      return saveBiDirectionalRelation(packageByName.get(), leadToSave);
+      setBiDirectionalRelation(packageByName.get(), leadToSave);
+
+      return leadMapper.toLeadListResponseDto(leadRepository.save(leadToSave));
     }
     log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(PACKAGE_NAME, packageName));
     throw new ResourceNotFoundException(PACKAGE_NAME + packageName);
   }
 
-  private LeadListResponseDto saveBiDirectionalRelation(PackageData packageData, Lead lead) {
+  private void setBiDirectionalRelation(PackageData packageData, Lead lead) {
 
     lead.addPackage(packageData);
     packageData.addLeads(lead);
@@ -130,8 +132,6 @@ public class LeadService {
       verificationResult.setLead(lead);
       verificationResult.setPackageData(packageData);
     });
-
-    return leadMapper.toLeadListResponseDto(leadRepository.save(lead));
   }
 
   private VerificationResult updateVerificationResult(

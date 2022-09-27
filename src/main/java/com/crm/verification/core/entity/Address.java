@@ -2,11 +2,9 @@ package com.crm.verification.core.entity;
 
 import java.util.Date;
 import java.util.Objects;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -79,32 +77,17 @@ public class Address {
     if (!(o instanceof Address))
       return false;
     Address address = (Address) o;
-    return getCompany().equals(address.getCompany()) && getCountry().equals(address.getCountry()) &&
-        getStreet().equals(address.getStreet()) && getCity().equals(address.getCity()) &&
+    return Objects.equals(getPhoneNumber(), address.getPhoneNumber()) &&
+        getCompany().equals(address.getCompany()) && getCountry().equals(address.getCountry()) &&
+        Objects.equals(getStreet(), address.getStreet()) &&
+        Objects.equals(getCity(), address.getCity()) &&
         Objects.equals(getState(), address.getState()) &&
-        Objects.equals(getPostalCode(), address.getPostalCode()) &&
-        getPhoneNumber().equals(address.getPhoneNumber());
+        Objects.equals(getPostalCode(), address.getPostalCode());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getCompany(), getCountry(), getStreet(), getCity(), getState(), getPostalCode(),
-        getPhoneNumber());
-  }
-
-  @Override
-  public String toString() {
-    return "Address{" +
-        "id=" + id +
-        ", phoneNumber='" + phoneNumber + '\'' +
-        ", company=" + company +
-        ", country='" + country + '\'' +
-        ", street='" + street + '\'' +
-        ", city='" + city + '\'' +
-        ", state='" + state + '\'' +
-        ", postalCode='" + postalCode + '\'' +
-        ", created=" + created +
-        ", updated=" + updated +
-        '}';
+    return Objects.hash(getPhoneNumber(), getCompany(), getCountry(), getStreet(), getCity(), getState(),
+        getPostalCode());
   }
 }

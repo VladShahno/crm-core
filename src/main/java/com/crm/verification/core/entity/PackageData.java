@@ -77,15 +77,4 @@ public class PackageData {
   public int hashCode() {
     return Objects.hash(getPackageName());
   }
-
-  @Override
-  public String toString() {
-    return "PackageData{" +
-        "verificationResults=" + verificationResults +
-        ", packageName='" + packageName + '\'' +
-        ", leads=" + leads +
-        ", created=" + created +
-        ", updated=" + updated +
-        '}';
-  }
 }

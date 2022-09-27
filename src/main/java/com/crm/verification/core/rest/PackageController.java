@@ -56,8 +56,11 @@ public class PackageController {
   public PackageDataResponseDto createPackage(
       @Parameter(description = "Package name for creating", example = "NewSoft")
       @RequestParam
-      @NotBlank(message = "{not.blank}") String packageName) {
-    return packageService.createPackage(packageName);
+      @NotBlank(message = "{not.blank}") String packageName,
+      @Parameter(description = "Leads' emails to add to new package", example = "NewSoft")
+      @RequestParam(value = "leadEmails", required = false)
+      Set<@NotBlank(message = "{not.blank}") String> leadEmails) {
+    return packageService.createPackage(packageName, leadEmails);
   }
 
   @GetMapping(value = "/by-package-name/{packageName}")
