@@ -1,4 +1,4 @@
-package com.crm.verification.core.dto.request.company.response;
+package com.crm.verification.core.dto.response.company;
 
 import java.util.HashSet;
 import java.util.Set;

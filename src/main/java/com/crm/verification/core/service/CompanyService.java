@@ -2,19 +2,21 @@ package com.crm.verification.core.service;
 
 import static com.crm.verification.core.common.Constants.Logging.COMPANY_NOT_FOUND;
 import static com.crm.verification.core.common.Constants.Logging.DELETING_COMPANY;
-import static com.crm.verification.core.common.Constants.Logging.ID;
 import static com.crm.verification.core.common.Constants.Logging.NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
+import javax.transaction.Transactional;
+
 import com.crm.verification.core.dto.request.CompanyRequestDto;
-import com.crm.verification.core.dto.request.company.request.CompanyUpdatedRequestDto;
-import com.crm.verification.core.dto.request.company.response.CompanyCreateResponseDto;
-import com.crm.verification.core.dto.request.company.response.CompanyProfileResponseDto;
+import com.crm.verification.core.dto.request.CompanyUpdatedRequestDto;
+import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
+import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
+import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.CompanyMapper;
 import com.crm.verification.core.repository.CompanyRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,11 +26,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Setter
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Transactional
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
-  private CompanyMapper companyMapper;
+  private final CompanyMapper companyMapper;
 
   public CompanyCreateResponseDto createCompany(CompanyRequestDto companyDto) {
     if (companyRepository.existsByName(companyDto.getName())) {
@@ -43,16 +46,19 @@ public class CompanyService {
   }
 
   public CompanyProfileResponseDto updateCompanyByName(String companyName, CompanyUpdatedRequestDto companyDto) {
+
+    var updatedCompany = companyMapper.toCompanyEntity(companyDto);
+
     companyRepository.findByName(companyName)
-        .orElseThrow(() -> {
+        .ifPresentOrElse(company -> {
+          log.debug("Updating company with {}", keyValue(NAME, companyName));
+          updatedCompany.setName(companyName);
+          companyRepository.save(updatedCompany);
+        }, () -> {
           log.error("{} not found", keyValue(NAME, companyName));
           throw new ResourceNotFoundException(NAME + companyName);
         });
-
-    log.debug("Updating company with {}", keyValue(ID, companyName));
-    var updatedCompany = companyMapper.toCompanyEntity(companyDto);
-    updatedCompany.setName(companyName);
-    return companyMapper.toCompanyProfileResponseDto(companyRepository.save(updatedCompany));
+    return companyMapper.toCompanyProfileResponseDto(updatedCompany);
   }
 
   public void deleteCompanyByName(String companyName) {
@@ -74,8 +80,8 @@ public class CompanyService {
         });
   }
 
-  public Page<CompanyProfileResponseDto> getAllCompanies(Pageable pageable) {
+  public Page<CompanyAllResponseDto> getAllCompanies(Pageable pageable) {
     log.debug("Getting all companies");
-    return companyRepository.findAll(pageable).map(companyMapper::toCompanyProfileResponseDto);
+    return companyRepository.findAll(pageable).map(companyMapper::toCompanyAllResponseDto);
   }
 }

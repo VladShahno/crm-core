@@ -1,9 +1,10 @@
 package com.crm.verification.core.mapper;
 
 import com.crm.verification.core.dto.request.CompanyRequestDto;
-import com.crm.verification.core.dto.request.company.request.CompanyUpdatedRequestDto;
-import com.crm.verification.core.dto.request.company.response.CompanyCreateResponseDto;
-import com.crm.verification.core.dto.request.company.response.CompanyProfileResponseDto;
+import com.crm.verification.core.dto.request.CompanyUpdatedRequestDto;
+import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
+import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
+import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;
 import com.crm.verification.core.entity.Company;
 import org.mapstruct.Mapper;
 
@@ -19,4 +20,6 @@ public interface CompanyMapper {
   CompanyProfileResponseDto toCompanyProfileResponseDto(Company company);
 
   CompanyCreateResponseDto toCompanyCreateResponseDto(Company company);
+
+  CompanyAllResponseDto toCompanyAllResponseDto(Company company);
 }
