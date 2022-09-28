@@ -3,12 +3,10 @@ package com.crm.verification.core.dto.response.packagedata;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PackageDataResponseDto {

@@ -1,6 +1,5 @@
 package com.crm.verification.core.dto.response.exception;
 
-import java.time.OffsetDateTime;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -18,6 +17,6 @@ public class ExceptionResponse {
   private String error;
   private String message;
   private String path;
-  private OffsetDateTime timestamp;
+  //private OffsetDateTime timestamp;
   private Map<String, Object> details;
 }

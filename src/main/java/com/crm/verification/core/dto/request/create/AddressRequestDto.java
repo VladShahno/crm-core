@@ -12,12 +12,10 @@ import javax.validation.constraints.NotBlank;
 import com.crm.verification.core.validation.ValidateSpecialCharacters;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressRequestDto {

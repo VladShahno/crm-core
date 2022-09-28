@@ -5,12 +5,10 @@ import java.util.Set;
 
 import com.crm.verification.core.dto.response.profile.AddressProfileResponseDto;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompanyPackageResponseDto {

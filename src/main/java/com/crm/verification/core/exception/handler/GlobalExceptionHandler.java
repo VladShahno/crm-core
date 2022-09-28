@@ -1,7 +1,5 @@
 package com.crm.verification.core.exception.handler;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.validation.ConstraintViolationException;
@@ -22,13 +20,13 @@ public class GlobalExceptionHandler {
   Map<String, Object> details = new LinkedHashMap<>();
 
   public ResponseEntity<ExceptionResponse> handleException(
-      Exception exception, WebRequest webRequest, HttpStatus httpStatus) {
+      String exceptionMessage, WebRequest webRequest, HttpStatus httpStatus) {
     ExceptionResponse exceptionResponse = ExceptionResponse.builder()
         .status(String.valueOf(httpStatus.value()))
         .error(httpStatus.getReasonPhrase())
-        .message(exception.getMessage())
+        .message(exceptionMessage)
         .path(webRequest.getDescription(false).substring(4))
-        .timestamp(OffsetDateTime.now(ZoneId.systemDefault()))
+        //.timestamp(OffsetDateTime.now(ZoneId.systemDefault()))
         .details(details)
         .build();
     return new ResponseEntity<>(exceptionResponse, httpStatus);
@@ -37,18 +35,19 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(value = {ResourceExistsException.class, ConstraintViolationException.class})
   public ResponseEntity<ExceptionResponse> handleClientExceptions(
       RuntimeException runtimeException, WebRequest request) {
-    return handleException(runtimeException, request, HttpStatus.BAD_REQUEST);
+    return handleException(runtimeException.getMessage(), request, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(value = {ResourceNotFoundException.class})
   public ResponseEntity<ExceptionResponse> handleResourceNotFoundException(
       ResourceNotFoundException resourceNotFoundException, WebRequest request) {
-    return handleException(resourceNotFoundException, request, HttpStatus.NOT_FOUND);
+    return handleException(resourceNotFoundException.getMessage(), request, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(value = {MethodArgumentNotValidException.class})
   public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException validException, WebRequest request) {
-    return handleException(validException, request, HttpStatus.BAD_REQUEST);
+    return handleException(validException.getBindingResult().getAllErrors().get(0).getDefaultMessage(), request,
+        HttpStatus.BAD_REQUEST);
   }
 }

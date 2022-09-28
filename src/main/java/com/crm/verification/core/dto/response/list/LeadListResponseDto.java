@@ -4,11 +4,9 @@ import java.util.Set;
 
 import com.crm.verification.core.dto.response.profile.VerificationResultResponseDto;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public class LeadListResponseDto {
 

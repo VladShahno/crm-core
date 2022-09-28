@@ -9,12 +9,10 @@ import javax.validation.constraints.NotBlank;
 
 import com.crm.verification.core.dto.request.create.LeadRequestDto;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PackageDataListRequestDto {
