@@ -1,17 +1,16 @@
 package com.crm.verification.core.dto.request.packagedata;
 
-import com.crm.verification.core.entity.PackageData;
+import static com.crm.verification.core.common.Constants.CoreServiceValidation.PACKAGE_NAME_REQUIRED;
+
+import javax.validation.constraints.NotBlank;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
 
 @Data
 @NoArgsConstructor
 public class PackageDataRequestDto {
 
+  @NotBlank(message = PACKAGE_NAME_REQUIRED)
   private String packageName;
-
-  public PackageDataRequestDto(PackageData packageData) {
-    BeanUtils.copyProperties(packageData, this);
-  }
 }

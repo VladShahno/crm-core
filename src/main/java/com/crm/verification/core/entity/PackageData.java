@@ -35,13 +35,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 )
 public class PackageData {
 
-  @OneToMany(mappedBy = "packageData", cascade = CascadeType.ALL)
-  Set<VerificationResult> verificationResults = new HashSet<>();
   @Id
   @Column(name = "package_name", nullable = false, unique = true)
   private String packageName;
+
   @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   private Set<Lead> leads = new HashSet<>();
+
+  @OneToMany(mappedBy = "packageData", cascade = CascadeType.ALL)
+  Set<VerificationResult> verificationResults = new HashSet<>();
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created", updatable = false)

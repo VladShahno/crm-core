@@ -1,7 +1,7 @@
 package com.crm.verification.core.mapper;
 
-import com.crm.verification.core.dto.request.CompanyRequestDto;
-import com.crm.verification.core.dto.request.CompanyUpdatedRequestDto;
+import com.crm.verification.core.dto.request.create.CompanyRequestDto;
+import com.crm.verification.core.dto.request.update.CompanyUpdatedRequestDto;
 import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;

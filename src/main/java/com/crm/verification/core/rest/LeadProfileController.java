@@ -4,8 +4,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-import com.crm.verification.core.dto.request.LeadRequestDto;
-import com.crm.verification.core.dto.request.LeadUpdateRequestDto;
+import com.crm.verification.core.dto.request.create.LeadRequestDto;
+import com.crm.verification.core.dto.request.update.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.service.LeadService;

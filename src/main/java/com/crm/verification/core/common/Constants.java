@@ -22,4 +22,31 @@ public class Constants {
   public class Authors {
     public static final String VSHAKHNO = "vshakhno";
   }
+
+  @UtilityClass
+  public class CoreServiceValidation {
+
+    public static final String INVALID_SPECIAL_CHARACTERS_MESSAGE = "Invalid %s. Special characters are not allowed";
+    public static final String SPECIAL_CHARACTER_VALIDATION_PATTERN = "[^?^\"'@#*$%&()}{\\[\\]|\\\\/~+=<>]*$";
+    public static final String FIRST_NAME_IS_REQUIRED = "{core.lead.name.first.required}";
+    public static final String VERIFICATION_RESULT_REQUIRED = "{core.lead.verification.result.required}";
+    public static final String LAST_NAME_REQUIRED = "{core.lead.name.last.required}";
+    public static final String TITLE_REQUIRED = "{core.lead.title.required}";
+    public static final String PROOF_LINK_REQUIRED = "{core.lead.proof-link.required}";
+    public static final String COMMENTS_MAX_LENGTH = "{core.lead.company.comments.max.length}";
+    public static final String COMPANY_NAME_REQUIRED = "{core.company.name.required}";
+    public static final String INDUSTRY_REQUIRED = "{core.company.industry.required}";
+    public static final String EMPLOYEES_REQUIRED = "{core.company.employees.required}";
+    public static final String EMPLOYEES_PROOF_LINK_REQUIRED = "{core.company.proof-link.employees.required}";
+    public static final String REVENUE_REQUIRED = "{core.company.revenue.required}";
+    public static final String REVENUE_PROOF_LINK_REQUIRED = "{core.company.proof-link.revenue.required}";
+    public static final String COUNTRY_REQUIRED = "{core.address.country.required}";
+    public static final String STREET_REQUIRED = "{core.address.street.required}";
+    public static final String CITY_REQUIRED = "{core.address.city.required}";
+    public static final String STATE_REQUIRED = "{core.address.state.required}";
+    public static final String POSTAL_CODE_REQUIRED = "{core.address.postal.code.required}";
+    public static final String PHONE_NUMBER_REQUIRED = "{core.address.phone.number.required}";
+    public static final String ADDRESS_ID_REQUIRED = "{core.address.id.required}";
+    public static final String PACKAGE_NAME_REQUIRED = "{core.package.data.name.required}";
+  }
 }

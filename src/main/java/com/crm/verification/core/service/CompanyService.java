@@ -7,8 +7,8 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 import javax.transaction.Transactional;
 
-import com.crm.verification.core.dto.request.CompanyRequestDto;
-import com.crm.verification.core.dto.request.CompanyUpdatedRequestDto;
+import com.crm.verification.core.dto.request.create.CompanyRequestDto;
+import com.crm.verification.core.dto.request.update.CompanyUpdatedRequestDto;
 import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;
