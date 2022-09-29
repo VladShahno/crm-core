@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
-import com.crm.verification.core.dto.request.create.LeadRequestDto;
+import com.crm.verification.core.dto.request.create.LeadCreateRequestDto;
 import com.crm.verification.core.dto.request.update.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
@@ -44,7 +44,7 @@ public class LeadService {
   private final LeadMapper leadMapper;
 
   @Transactional
-  public LeadListResponseDto createLeadProfile(LeadRequestDto leadDto, String packageName) {
+  public LeadListResponseDto createLeadProfile(LeadCreateRequestDto leadDto, String packageName) {
     if (leadRepository.existsByEmail(leadDto.getEmail())) {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
       throw new ResourceExistsException(EMAIL + leadDto.getEmail());
@@ -119,13 +119,13 @@ public class LeadService {
     return leads.map(leadMapper::toLeadListResponseDto);
   }
 
-  private LeadListResponseDto saveLeadToPackage(String packageName, LeadRequestDto leadDto) {
+  private LeadListResponseDto saveLeadToPackage(String packageName, LeadCreateRequestDto leadDto) {
     var packageByName = packageRepository.findByPackageName(packageName);
     if (packageByName.isPresent()) {
       log.debug("Setting packageData with {}", keyValue(PACKAGE_NAME, packageName));
       var leadToSave = leadMapper.toLeadEntity(leadDto);
 
-      setBiDirectionalRelation(packageByName.get(), leadToSave);
+      setBiDirectionalRelation(packageByName.get(), leadToSave, leadDto.getVerificationResults());
 
       return leadMapper.toLeadListResponseDto(leadRepository.save(leadToSave));
     }
@@ -133,7 +133,7 @@ public class LeadService {
     throw new ResourceNotFoundException(PACKAGE_NAME + packageName);
   }
 
-  private void setBiDirectionalRelation(PackageData packageData, Lead lead) {
+  private void setBiDirectionalRelation(PackageData packageData, Lead lead, String result) {
 
     lead.addPackage(packageData);
     packageData.addLeads(lead);
@@ -142,9 +142,12 @@ public class LeadService {
         .forEach(address -> address.setCompany(lead.getCompany()));
     lead.getCompany().addLeads(lead);
 
+    lead.addVerificationResult(new VerificationResult());
+
     lead.getVerificationResults().forEach(verificationResult -> {
       verificationResult.setLead(lead);
       verificationResult.setPackageData(packageData);
+      verificationResult.setResult(result);
     });
   }
 

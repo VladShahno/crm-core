@@ -4,7 +4,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-import com.crm.verification.core.dto.request.create.LeadRequestDto;
+import com.crm.verification.core.dto.request.create.LeadCreateRequestDto;
 import com.crm.verification.core.dto.request.update.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
 import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
@@ -79,7 +79,7 @@ public class LeadProfileController {
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
   })
   public LeadListResponseDto createLead(
-      @RequestBody @Valid LeadRequestDto leadRequestDto,
+      @RequestBody @Valid LeadCreateRequestDto leadRequestDto,
       @Parameter(description = "Package name to which the lead will be assigned", example = "NewSoft")
       @NotBlank(message = "{not.blank}") @RequestParam(value = "packageName") String packageName) {
     return leadService.createLeadProfile(leadRequestDto, packageName);
@@ -132,5 +132,30 @@ public class LeadProfileController {
       @NotBlank(message = "{not.blank}") @PathVariable(value = "email")
       String email) {
     leadService.deleteLeadProfileByEmail(email);
+  }
+
+  @PatchMapping(value = "/update/company/{email}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Endpoint allows to change lead company by email and company name")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "Successfully updated company",
+          content = {@Content(schema = @Schema(implementation = LeadProfileResponseDto.class))}),
+      @ApiResponse(responseCode = "400", description = "Bad Request",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "401", description = "Unauthorized",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "403", description = "Forbidden",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "500", description = "Internal Server Error",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+  })
+  public LeadProfileResponseDto changeLeadCompany(
+      @Parameter(description = "Lead email to change company", example = "john.smith@gmail.com")
+      @NotBlank(message = "{not.blank}") @PathVariable(value = "email")
+      String leadEmail,
+      @Parameter(description = "Existing company name to be assigned to the lead", example = "john.smith@gmail.com")
+      @NotBlank(message = "{not.blank}") @RequestParam(value = "companyName")
+      String companyName) {
+    return leadService.changeLeadCompany(companyName, leadEmail);
   }
 }
