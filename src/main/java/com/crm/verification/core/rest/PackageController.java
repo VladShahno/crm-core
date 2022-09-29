@@ -108,6 +108,6 @@ public class PackageController {
       @RequestBody @Valid Set<@Email String> leadEmails,
       @Parameter(description = "Target packageName to which leads will be added", example = "MicroSoft")
       @PathVariable(value = "packageName") @NotBlank(message = "{not.blank}") String packageName) {
-    return packageService.addExistingLeadsToExistingPackage(packageName, leadEmails);
+    return packageService.addExistingLeadsToPackage(packageName, leadEmails);
   }
 }

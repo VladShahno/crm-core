@@ -2,9 +2,14 @@ package com.crm.verification.core.service;
 
 import static com.crm.verification.core.common.Constants.Logging.COMPANY_NOT_FOUND;
 import static com.crm.verification.core.common.Constants.Logging.DELETING_COMPANY;
+import static com.crm.verification.core.common.Constants.Logging.EMAIL;
 import static com.crm.verification.core.common.Constants.Logging.NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import com.crm.verification.core.dto.request.create.CompanyRequestDto;
@@ -12,13 +17,17 @@ import com.crm.verification.core.dto.request.update.CompanyUpdatedRequestDto;
 import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;
+import com.crm.verification.core.entity.Company;
+import com.crm.verification.core.entity.Lead;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.CompanyMapper;
 import com.crm.verification.core.repository.CompanyRepository;
+import com.crm.verification.core.repository.LeadRepository;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +40,7 @@ import org.springframework.stereotype.Service;
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
+  private final LeadRepository leadRepository;
   private final CompanyMapper companyMapper;
 
   public CompanyCreateResponseDto createCompany(CompanyRequestDto companyDto) {
@@ -83,5 +93,67 @@ public class CompanyService {
   public Page<CompanyAllResponseDto> getAllCompanies(Pageable pageable) {
     log.debug("Getting all companies");
     return companyRepository.findAll(pageable).map(companyMapper::toCompanyAllResponseDto);
+  }
+
+  public Company findCompanyByName(String companyName) {
+    return companyRepository.findByName(companyName).orElseThrow(() -> {
+      log.error(COMPANY_NOT_FOUND, keyValue(NAME, companyName));
+      return new ResourceNotFoundException(NAME + companyName);
+    });
+  }
+
+  public void removeLeadFromCompany(Lead leadToRemove, Company company) {
+    log.debug("Removing lead with {} from company {}", keyValue(EMAIL, leadToRemove.getEmail()),
+        keyValue(NAME, company.getName()));
+    //maybe need to update old company calling repo
+    company.removeLead(leadToRemove);
+  }
+
+  private void bulkRemoveLeadFromCompany(Set<String> leadEmails, String companyName) {
+    var targetCompany = companyRepository.findByName(companyName);
+    var leadsToRemove = leadRepository.findAllByEmailIn(leadEmails);
+
+    var leadsWithoutCompany = new ArrayList<Lead>();
+    if (CollectionUtils.isNotEmpty(leadsToRemove) && targetCompany.isPresent()) {
+      leadsToRemove.forEach(lead -> {
+        targetCompany.get().removeLead(lead);
+        leadsWithoutCompany.add(lead);
+      });
+      leadRepository.saveAll(leadsWithoutCompany);
+    }
+  }
+
+  public CompanyProfileResponseDto addExistingLeadsToCompany(String companyName, Set<String> leadEmails) {
+    var targetCompany = findCompanyByName(companyName);
+    var addingLeads = leadRepository.findAllByEmailIn(leadEmails);
+
+    if (CollectionUtils.isNotEmpty(addingLeads) ) {
+      return addLeadsToCompany(addingLeads, targetCompany, leadEmails);
+    }
+    log.error("Target leads not found");
+    throw new ResourceNotFoundException();
+  }
+
+  private CompanyProfileResponseDto addLeadsToCompany(
+      List<Lead> addingLeads,
+      Company targetCompany,
+      Set<String> leadEmails) {
+
+    var leadEmailFromTargetCompany = targetCompany.getLeads()
+        .stream()
+        .map(Lead::getEmail)
+        .collect(Collectors.toSet());
+
+    if (leadEmails.containsAll(leadEmailFromTargetCompany)) {
+      log.error("Company already have leads with {}", keyValue(EMAIL, leadEmails));
+      throw new ResourceExistsException(EMAIL + leadEmails);
+    }
+    return saveLeadsToCompany(addingLeads, targetCompany);
+  }
+
+  private CompanyProfileResponseDto saveLeadsToCompany(List<Lead> addingLeads, Company targetCompany) {
+    log.debug("Saving leads {} to company", keyValue(EMAIL, addingLeads.stream().map(Lead::getEmail)));
+    addingLeads.forEach(targetCompany::addLeads);
+    return companyMapper.toCompanyProfileResponseDto(companyRepository.save(targetCompany));
   }
 }

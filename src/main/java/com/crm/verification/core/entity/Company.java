@@ -80,6 +80,10 @@ public class Company {
     //lead.getPackageData().add(this);
   }
 
+  public void removeLead(Lead lead) {
+    this.leads.remove(lead);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)

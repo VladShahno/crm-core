@@ -2,6 +2,7 @@ package com.crm.verification.core.service;
 
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
 import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
+import static com.crm.verification.core.common.Constants.Logging.NAME;
 import static com.crm.verification.core.common.Constants.Logging.NOT_FOUND_ERROR_KEY_VALUE;
 import static com.crm.verification.core.common.Constants.Logging.PACKAGE_NAME;
 import static com.crm.verification.core.common.Constants.Logging.VERIFICATION_RESULT;
@@ -39,6 +40,7 @@ public class LeadService {
 
   private final LeadRepository leadRepository;
   private final PackageRepository packageRepository;
+  private final CompanyService companyService;
   private final LeadMapper leadMapper;
 
   @Transactional
@@ -55,7 +57,7 @@ public class LeadService {
       String email,
       LeadUpdateRequestDto leadRequestDto) {
 
-    var leadByEmail = findLeadByEmailAndPackageName(email, packageName);
+    var leadByEmail = findLeadByEmail(email);
     var verificationResult = updateVerificationResult(leadByEmail.getVerificationResults(), packageName,
         leadRequestDto.getVerificationResults());
 
@@ -81,14 +83,26 @@ public class LeadService {
     });
   }
 
+  public LeadProfileResponseDto changeLeadCompany(String newCompanyName, String leadEmail) {
+    var leadToUpdate = findLeadByEmail(leadEmail);
+    var newCompany = companyService.findCompanyByName(newCompanyName);
+
+    companyService.removeLeadFromCompany(leadToUpdate, leadToUpdate.getCompany());
+
+    leadToUpdate.setCompany(newCompany);
+    newCompany.addLeads(leadToUpdate);
+
+    log.debug("Saving lead with {} with new {}", keyValue(EMAIL, leadEmail), keyValue(NAME, newCompanyName));
+    return leadMapper.toLeadProfileResponseDto(leadRepository.save(leadToUpdate));
+  }
+
   public LeadProfileResponseDto getLeadProfileByEmail(String email) {
     log.debug("Getting lead with {}", keyValue(EMAIL, email));
-    var lead = leadRepository.findById(email)
+    return leadRepository.findById(email).map(leadMapper::toLeadProfileResponseDto)
         .orElseThrow(() -> {
           log.error(LEAD_NOT_FOUND, keyValue(EMAIL, email));
           return new ResourceNotFoundException(EMAIL + email);
         });
-    return leadMapper.toLeadProfileResponseDto(lead);
   }
 
   public Page<LeadListResponseDto> getAllLeadsByPackageNameWithAppropriateResult(
@@ -154,8 +168,8 @@ public class LeadService {
     throw new ResourceNotFoundException(VERIFICATION_RESULT + verificationResultFromRepository);
   }
 
-  private Lead findLeadByEmailAndPackageName(String email, String packageName) {
-    return leadRepository.findByEmailAndPackageDataPackageName(email, packageName)
+  private Lead findLeadByEmail(String email) {
+    return leadRepository.findByEmail(email)
         .orElseThrow(() -> {
           log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(EMAIL, email));
           throw new ResourceNotFoundException(EMAIL + email);
