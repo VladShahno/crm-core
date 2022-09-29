@@ -1,5 +1,6 @@
 package com.crm.verification.core.mapper;
 
+import com.crm.verification.core.dto.request.create.LeadCreateRequestDto;
 import com.crm.verification.core.dto.request.create.LeadRequestDto;
 import com.crm.verification.core.dto.request.update.LeadUpdateRequestDto;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
@@ -12,6 +13,9 @@ import org.mapstruct.Mapping;
 public interface LeadMapper {
 
   Lead toLeadEntity(LeadRequestDto leadRequestDto);
+
+  @Mapping(target = "verificationResults", ignore = true)
+  Lead toLeadEntity(LeadCreateRequestDto leadCreateRequestDto);
 
   @Mapping(target = "verificationResults", ignore = true)
   Lead toLeadEntity(LeadUpdateRequestDto leadRequestDto);

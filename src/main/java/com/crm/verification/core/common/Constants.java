@@ -49,4 +49,18 @@ public class Constants {
     public static final String ADDRESS_ID_REQUIRED = "{core.address.id.required}";
     public static final String PACKAGE_NAME_REQUIRED = "{core.package.data.name.required}";
   }
+
+  @UtilityClass
+  public class VerificationResult {
+    public static final String Y_ACCEPTED = "Y1:Accepted";
+    public static final String Y2_ACCEPTED = "Y2:Accepted - by description";
+    public static final String Y3_ACCEPTED = "Y3:Accepted - suspicious";
+    public static final String Y4_ACCEPTED = "Y4:Accepted - questionable";
+    public static final String N_A_COMPANY = "Reject: not appropriate company";
+    public static final String N_A_TITLE = "Reject: not appropriate title";
+    public static final String N_A_EMPLOYEES_SIZE = "Reject: not appropriate employees size";
+    public static final String N_A_REVENUE = "Reject: not appropriate revenue";
+    public static final String N_A_INDUSTRY = "Reject: not appropriate industry";
+    public static final String N_A_ADDRESS = "Reject: not appropriate address";
+  }
 }
