@@ -112,7 +112,7 @@ public class LeadProfileController {
     return leadService.updateLeadProfileByEmailAndPackageName(packageName, email, leadUpdateRequestDto);
   }
 
-  @DeleteMapping(value = "/delete{email}")
+  @DeleteMapping(value = "/delete/{email}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Endpoint allows to delete lead's profile by email")
   @ApiResponses(value = {

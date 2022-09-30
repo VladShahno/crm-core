@@ -8,7 +8,6 @@ import com.crm.verification.core.dto.request.update.CompanyUpdatedRequestDto;
 import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;
-import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -85,12 +85,11 @@ public class CompanyController {
     return companyService.createCompany(companyDto);
   }
 
-  @DeleteMapping(value = "/delete{companyName}")
+  @DeleteMapping(value = "/delete/{companyName}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Endpoint allows to delete company by name")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Successfully delete lead profile",
-          content = {@Content(schema = @Schema(implementation = LeadProfileResponseDto.class))}),
+      @ApiResponse(responseCode = "204", description = "Successfully delete company"),
       @ApiResponse(responseCode = "400", description = "Bad Request",
           content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
@@ -150,5 +149,29 @@ public class CompanyController {
       String companyName,
       @RequestBody @Valid CompanyUpdatedRequestDto companyDto) {
     return companyService.updateCompanyByName(companyName, companyDto);
+  }
+
+  @DeleteMapping(value = "/delete/address/{addressId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Endpoint allows to delete address by id")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Successfully delete address"),
+      @ApiResponse(responseCode = "400", description = "Bad Request",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "401", description = "Unauthorized",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "403", description = "Forbidden",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+      @ApiResponse(responseCode = "500", description = "Internal Server Error",
+          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+  })
+  public void removeAddressFromCompany(
+      @Parameter(description = "Target company where need to delete the address", example = "NewSoft")
+      @RequestParam(value = "companyName") @NotBlank(message = "{not.blank}")
+      String companyName,
+      @Parameter(description = "Target address id to delte", example = "24")
+      @PathVariable(value = "addressId")
+      Long addressId) {
+    companyService.removeAddressFromCompany(companyName, addressId);
   }
 }

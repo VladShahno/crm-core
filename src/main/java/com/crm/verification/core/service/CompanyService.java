@@ -1,8 +1,11 @@
 package com.crm.verification.core.service;
 
+import static com.crm.verification.core.common.Constants.Logging.ADDRESS;
+import static com.crm.verification.core.common.Constants.Logging.COMPANY;
 import static com.crm.verification.core.common.Constants.Logging.COMPANY_NOT_FOUND;
 import static com.crm.verification.core.common.Constants.Logging.DELETING_COMPANY;
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
+import static com.crm.verification.core.common.Constants.Logging.ID;
 import static com.crm.verification.core.common.Constants.Logging.NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
@@ -22,9 +25,9 @@ import com.crm.verification.core.entity.Lead;
 import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.CompanyMapper;
+import com.crm.verification.core.repository.AddressRepository;
 import com.crm.verification.core.repository.CompanyRepository;
-import com.crm.verification.core.repository.LeadRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,12 +38,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Setter
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
-  private final LeadRepository leadRepository;
+  private final AddressRepository addressRepository;
+  private final LeadService leadService;
   private final CompanyMapper companyMapper;
 
   public CompanyCreateResponseDto createCompany(CompanyRequestDto companyDto) {
@@ -66,7 +70,7 @@ public class CompanyService {
           companyRepository.save(updatedCompany);
         }, () -> {
           log.error("{} not found", keyValue(NAME, companyName));
-          throw new ResourceNotFoundException(NAME + companyName);
+          throw new ResourceNotFoundException(COMPANY, NAME, companyName);
         });
     return companyMapper.toCompanyProfileResponseDto(updatedCompany);
   }
@@ -77,7 +81,7 @@ public class CompanyService {
       companyRepository.deleteByName(companyName);
     }, () -> {
       log.error(COMPANY_NOT_FOUND, keyValue(NAME, companyName));
-      throw new ResourceNotFoundException(NAME + companyName);
+      throw new ResourceNotFoundException(COMPANY, NAME, companyName);
     });
   }
 
@@ -86,19 +90,19 @@ public class CompanyService {
     return companyRepository.findByName(companyName).map(companyMapper::toCompanyAllResponseDto)
         .orElseThrow(() -> {
           log.error(COMPANY_NOT_FOUND, keyValue(NAME, companyName));
-          return new ResourceNotFoundException(NAME + companyName);
+          return new ResourceNotFoundException(COMPANY, NAME, companyName);
         });
   }
 
   public Page<CompanyAllResponseDto> getAllCompanies(Pageable pageable) {
-    log.debug("Getting all companies");
+    log.debug("Getting all companies...");
     return companyRepository.findAll(pageable).map(companyMapper::toCompanyAllResponseDto);
   }
 
   public Company findCompanyByName(String companyName) {
     return companyRepository.findByName(companyName).orElseThrow(() -> {
       log.error(COMPANY_NOT_FOUND, keyValue(NAME, companyName));
-      return new ResourceNotFoundException(NAME + companyName);
+      return new ResourceNotFoundException(COMPANY, NAME, companyName);
     });
   }
 
@@ -109,9 +113,23 @@ public class CompanyService {
     company.removeLead(leadToRemove);
   }
 
+  public void removeAddressFromCompany(String companyName, Long addressId) {
+    var company = findCompanyByName(companyName);
+    company.getAddresses().stream().filter(address -> address.getId().equals(addressId))
+        .findFirst().ifPresentOrElse(address -> {
+          log.debug("Deleting address with {} from company with {}", keyValue(ID, addressId),
+              keyValue(NAME, companyName));
+          company.removeAddress(address);
+          addressRepository.delete(address);
+        }, () -> {
+          log.error("Address with {} not found in company", keyValue(ID, addressId));
+          throw new ResourceNotFoundException(ADDRESS, ID, addressId.toString());
+        });
+  }
+
   private void bulkRemoveLeadFromCompany(Set<String> leadEmails, String companyName) {
     var targetCompany = companyRepository.findByName(companyName);
-    var leadsToRemove = leadRepository.findAllByEmailIn(leadEmails);
+    var leadsToRemove = leadService.findAllByEmailIn(leadEmails);
 
     var leadsWithoutCompany = new ArrayList<Lead>();
     if (CollectionUtils.isNotEmpty(leadsToRemove) && targetCompany.isPresent()) {
@@ -119,15 +137,15 @@ public class CompanyService {
         targetCompany.get().removeLead(lead);
         leadsWithoutCompany.add(lead);
       });
-      leadRepository.saveAll(leadsWithoutCompany);
+      leadService.bulkLeadSave(leadsWithoutCompany);
     }
   }
 
   public CompanyProfileResponseDto addExistingLeadsToCompany(String companyName, Set<String> leadEmails) {
     var targetCompany = findCompanyByName(companyName);
-    var addingLeads = leadRepository.findAllByEmailIn(leadEmails);
+    var addingLeads = leadService.findAllByEmailIn(leadEmails);
 
-    if (CollectionUtils.isNotEmpty(addingLeads) ) {
+    if (CollectionUtils.isNotEmpty(addingLeads)) {
       return addLeadsToCompany(addingLeads, targetCompany, leadEmails);
     }
     log.error("Target leads not found");

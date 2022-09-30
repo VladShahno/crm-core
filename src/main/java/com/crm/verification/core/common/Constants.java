@@ -12,10 +12,14 @@ public class Constants {
     public static final String DELETING_COMPANY = "Deleting company with {}";
     public static final String EMAIL = "email";
     public static final String ID = "id";
+    public static final String PACKAGE = "Package";
     public static final String NAME = "name";
     public static final String PACKAGE_NAME = "packageName";
     public static final String VERIFICATION_RESULT = "verificationResult";
     public static final String NOT_FOUND_ERROR_KEY_VALUE = "{} not found";
+    public static final String ADDRESS = "Address";
+    public static final String COMPANY = "Company";
+    public static final String LEAD = "Lead";
   }
 
   @UtilityClass

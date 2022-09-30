@@ -1,13 +1,14 @@
 package com.crm.verification.core.service;
 
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
+import static com.crm.verification.core.common.Constants.Logging.LEAD;
 import static com.crm.verification.core.common.Constants.Logging.LEAD_NOT_FOUND;
 import static com.crm.verification.core.common.Constants.Logging.NAME;
 import static com.crm.verification.core.common.Constants.Logging.NOT_FOUND_ERROR_KEY_VALUE;
-import static com.crm.verification.core.common.Constants.Logging.PACKAGE_NAME;
 import static com.crm.verification.core.common.Constants.Logging.VERIFICATION_RESULT;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -23,10 +24,9 @@ import com.crm.verification.core.exception.ResourceExistsException;
 import com.crm.verification.core.exception.ResourceNotFoundException;
 import com.crm.verification.core.mapper.LeadMapper;
 import com.crm.verification.core.repository.LeadRepository;
-import com.crm.verification.core.repository.PackageRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,14 +34,24 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Setter
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class LeadService {
 
   private final LeadRepository leadRepository;
-  private final PackageRepository packageRepository;
+  private final PackageService packageService;
   private final CompanyService companyService;
   private final LeadMapper leadMapper;
+
+  public LeadService(
+      LeadRepository leadRepository,
+      @Lazy PackageService packageService,
+      @Lazy CompanyService companyService,
+      LeadMapper leadMapper) {
+    this.leadRepository = leadRepository;
+    this.packageService = packageService;
+    this.companyService = companyService;
+    this.leadMapper = leadMapper;
+  }
 
   @Transactional
   public LeadListResponseDto createLeadProfile(LeadCreateRequestDto leadDto, String packageName) {
@@ -79,7 +89,7 @@ public class LeadService {
       leadRepository.deleteByEmail(email);
     }, () -> {
       log.error(LEAD_NOT_FOUND, keyValue(EMAIL, email));
-      throw new ResourceNotFoundException(EMAIL + email);
+      throw new ResourceNotFoundException(LEAD, EMAIL, email);
     });
   }
 
@@ -101,7 +111,7 @@ public class LeadService {
     return leadRepository.findById(email).map(leadMapper::toLeadProfileResponseDto)
         .orElseThrow(() -> {
           log.error(LEAD_NOT_FOUND, keyValue(EMAIL, email));
-          return new ResourceNotFoundException(EMAIL + email);
+          return new ResourceNotFoundException(LEAD, EMAIL, email);
         });
   }
 
@@ -120,17 +130,12 @@ public class LeadService {
   }
 
   private LeadListResponseDto saveLeadToPackage(String packageName, LeadCreateRequestDto leadDto) {
-    var packageByName = packageRepository.findByPackageName(packageName);
-    if (packageByName.isPresent()) {
-      log.debug("Setting packageData with {}", keyValue(PACKAGE_NAME, packageName));
-      var leadToSave = leadMapper.toLeadEntity(leadDto);
+    var packageByName = packageService.getPackageByPackageName(packageName);
+    var leadToSave = leadMapper.toLeadEntity(leadDto);
 
-      setBiDirectionalRelation(packageByName.get(), leadToSave, leadDto.getVerificationResults());
+    setBiDirectionalRelation(packageByName, leadToSave, leadDto.getVerificationResults());
 
-      return leadMapper.toLeadListResponseDto(leadRepository.save(leadToSave));
-    }
-    log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(PACKAGE_NAME, packageName));
-    throw new ResourceNotFoundException(PACKAGE_NAME + packageName);
+    return leadMapper.toLeadListResponseDto(leadRepository.save(leadToSave));
   }
 
   private void setBiDirectionalRelation(PackageData packageData, Lead lead, String result) {
@@ -168,14 +173,23 @@ public class LeadService {
       return verificationResultByEmailAndPackageName.get();
     }
     log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(VERIFICATION_RESULT, verificationResultFromRepository));
-    throw new ResourceNotFoundException(VERIFICATION_RESULT + verificationResultFromRepository);
+    throw new ResourceNotFoundException(VERIFICATION_RESULT);
   }
 
   private Lead findLeadByEmail(String email) {
     return leadRepository.findByEmail(email)
         .orElseThrow(() -> {
           log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(EMAIL, email));
-          throw new ResourceNotFoundException(EMAIL + email);
+          throw new ResourceNotFoundException(LEAD, EMAIL, email);
         });
+  }
+
+  public List<Lead> findAllByEmailIn(Set<String> leadEmails) {
+    log.debug("Getting all leads by {}", keyValue(EMAIL, leadEmails));
+    return leadRepository.findAllByEmailIn(leadEmails);
+  }
+
+  public void bulkLeadSave(List<Lead> leads) {
+    leadRepository.saveAll(leads);
   }
 }

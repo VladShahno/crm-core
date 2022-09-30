@@ -84,6 +84,10 @@ public class Company {
     this.leads.remove(lead);
   }
 
+  public void removeAddress(Address address) {
+    this.addresses.remove(address);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)
