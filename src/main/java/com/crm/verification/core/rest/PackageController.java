@@ -1,9 +1,13 @@
 package com.crm.verification.core.rest;
 
+import static com.crm.verification.core.common.Constants.CoreServiceValidation.EMAIL_REQUIRED;
+import static com.crm.verification.core.common.Constants.CoreServiceValidation.PACKAGE_NAME_REQUIRED;
+
 import java.util.Set;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
+import com.crm.verification.core.dto.response.exception.ExceptionResponse;
 import com.crm.verification.core.dto.response.packagedata.PackageDataResponseDto;
 import com.crm.verification.core.service.PackageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/v1/packages")
@@ -45,21 +48,21 @@ public class PackageController {
       @ApiResponse(responseCode = "201", description = "Successfully created package",
           content = {@Content(schema = @Schema(implementation = PackageDataResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public PackageDataResponseDto createPackage(
-      @Parameter(description = "Package name for creating", example = "NewSoft")
-      @RequestParam
-      @NotBlank(message = "{not.blank}") String packageName,
-      @Parameter(description = "Leads' emails to add to new package", example = "NewSoft")
+      @Parameter(description = "Package name for creating", example = "Pack")
+      @RequestParam @NotBlank(message = PACKAGE_NAME_REQUIRED)
+      String packageName,
+      @Parameter(description = "Lead emails to add to new package", example = "[john.smith@gmail.com]")
       @RequestParam(value = "leadEmails", required = false)
-      Set<@NotBlank(message = "{not.blank}") String> leadEmails) {
+      Set<String> leadEmails) {
     return packageService.createPackage(packageName, leadEmails);
   }
 
@@ -70,19 +73,19 @@ public class PackageController {
       @ApiResponse(responseCode = "200", description = "Package received successfully",
           content = {@Content(schema = @Schema(implementation = PackageDataResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "404", description = "Not Found",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public PackageDataResponseDto getPackageByPackageName(
-      @Parameter(description = "Target packageName", example = "ccSooifMMSyVt5FeyQfw")
-      @NotBlank(message = "{not.blank}") @PathVariable(value = "packageName") String packageName) {
+      @Parameter(description = "Target packageName", example = "NewSoft")
+      @NotBlank(message = PACKAGE_NAME_REQUIRED) @PathVariable(value = "packageName") String packageName) {
     return packageService.getPackageDataResponseDtoByPackageName(packageName);
   }
 
@@ -93,21 +96,21 @@ public class PackageController {
       @ApiResponse(responseCode = "200", description = "Leads added to package successfully",
           content = {@Content(schema = @Schema(implementation = PackageDataResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "404", description = "Not Found",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public PackageDataResponseDto addLeadsToPackage(
-      @Parameter(description = "Leads' emails  to add to the package", example = "[john.smith@gmail.com,john.snow@gmail.com]")
-      @RequestParam Set<@Email String> leadEmails,
-      @Parameter(description = "Target packageName to which leads will be added", example = "MicroSoft")
-      @PathVariable(value = "packageName") @NotBlank(message = "{not.blank}") String packageName) {
+      @Parameter(description = "Lead emails  to add to the package", example = "[john.smith@gmail.com,john.snow@gmail.com]")
+      @RequestParam Set<@NotBlank(message = EMAIL_REQUIRED) @Email String> leadEmails,
+      @Parameter(description = "Target packageName to which leads will be added", example = "Pack")
+      @PathVariable(value = "packageName") @NotBlank(message = PACKAGE_NAME_REQUIRED) String packageName) {
     return packageService.addExistingLeadsToPackage(packageName, leadEmails);
   }
 
@@ -118,15 +121,15 @@ public class PackageController {
       @ApiResponse(responseCode = "200", description = "Packages received successfully",
           content = {@Content(schema = @Schema(implementation = PackageDataResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "404", description = "Not Found",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public Page<PackageDataResponseDto> getAllPackages(
       @PageableDefault(sort = "packageName", size = 25)
@@ -141,20 +144,20 @@ public class PackageController {
       @ApiResponse(responseCode = "204", description = "Successfully removed lead from package",
           content = {@Content(schema = @Schema(implementation = PackageDataResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public PackageDataResponseDto removeLeadFromPackage(
-      @Parameter(description = "Target packageName from which lead will be removed", example = "NewSoft")
-      @RequestParam(value = "packageName") @NotBlank(message = "{not.blank}")
+      @Parameter(description = "Target packageName from which lead will be removed", example = "Pack")
+      @NotBlank(message = PACKAGE_NAME_REQUIRED) @RequestParam(value = "packageName")
       String packageName,
       @Parameter(description = "Target lead email to remove from package", example = "john.smith@gmail.com")
-      @PathVariable(value = "email") @NotBlank(message = "{not.blank}")
+      @NotBlank(message = EMAIL_REQUIRED) @Email @PathVariable(value = "email")
       String email) {
     return packageService.removeLeadFromPackage(email, packageName);
   }

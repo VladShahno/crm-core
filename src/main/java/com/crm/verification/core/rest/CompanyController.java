@@ -1,5 +1,7 @@
 package com.crm.verification.core.rest;
 
+import static com.crm.verification.core.common.Constants.CoreServiceValidation.COMPANY_NAME_REQUIRED;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
@@ -8,6 +10,7 @@ import com.crm.verification.core.dto.request.update.CompanyUpdatedRequestDto;
 import com.crm.verification.core.dto.response.company.CompanyAllResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyCreateResponseDto;
 import com.crm.verification.core.dto.response.company.CompanyProfileResponseDto;
+import com.crm.verification.core.dto.response.exception.ExceptionResponse;
 import com.crm.verification.core.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/v1/companies")
@@ -52,15 +54,15 @@ public class CompanyController {
       @ApiResponse(responseCode = "200", description = "Companies received successfully",
           content = {@Content(schema = @Schema(implementation = CompanyAllResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "404", description = "Not Found",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public Page<CompanyAllResponseDto> getAllCompanies(@PageableDefault(sort = "name", size = 25) Pageable pageable) {
     return companyService.getAllCompanies(pageable);
@@ -73,13 +75,13 @@ public class CompanyController {
       @ApiResponse(responseCode = "201", description = "Successfully created company",
           content = {@Content(schema = @Schema(implementation = CompanyCreateResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public CompanyCreateResponseDto createCompany(@RequestBody @Valid CompanyRequestDto companyDto) {
     return companyService.createCompany(companyDto);
@@ -91,17 +93,17 @@ public class CompanyController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Successfully delete company"),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public void deleteCompanyByName(
-      @Parameter(description = "Company name to delete", example = "NewSoft")
-      @PathVariable(value = "companyName") @NotBlank(message = "{not.blank}") String companyName) {
+      @Parameter(description = "Target company name to delete", example = "NewSoft")
+      @PathVariable(value = "companyName") @NotBlank(message = COMPANY_NAME_REQUIRED) String companyName) {
     companyService.deleteCompanyByName(companyName);
   }
 
@@ -112,19 +114,19 @@ public class CompanyController {
       @ApiResponse(responseCode = "200", description = "Company received successfully",
           content = {@Content(schema = @Schema(implementation = CompanyAllResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "404", description = "Not Found",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public CompanyAllResponseDto getCompanyByName(
       @Parameter(description = "Target company name", example = "NewSoft")
-      @PathVariable(value = "companyName") @NotBlank(message = "{not.blank}") String companyName) {
+      @PathVariable(value = "companyName") @NotBlank(message = COMPANY_NAME_REQUIRED) String companyName) {
     return companyService.getCompanyByName(companyName);
   }
 
@@ -135,17 +137,17 @@ public class CompanyController {
       @ApiResponse(responseCode = "201", description = "Successfully updated company",
           content = {@Content(schema = @Schema(implementation = CompanyProfileResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public CompanyProfileResponseDto updateCompanyByName(
       @Parameter(description = "Target company name to update", example = "NewSoft")
-      @PathVariable(value = "companyName") @NotBlank(message = "{not.blank}")
+      @PathVariable(value = "companyName") @NotBlank(message = COMPANY_NAME_REQUIRED)
       String companyName,
       @RequestBody @Valid CompanyUpdatedRequestDto companyDto) {
     return companyService.updateCompanyByName(companyName, companyDto);
@@ -157,21 +159,21 @@ public class CompanyController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Successfully delete address"),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public void removeAddressFromCompany(
-      @Parameter(description = "Target company where need to delete the address", example = "NewSoft")
-      @RequestParam(value = "companyName") @NotBlank(message = "{not.blank}")
+      @Parameter(description = "Target company in which need to delete the address", example = "NewSoft")
+      @RequestParam(value = "companyName") @NotBlank(message = COMPANY_NAME_REQUIRED)
       String companyName,
       @Parameter(description = "Target address id to delte", example = "24")
       @PathVariable(value = "addressId")
       Long addressId) {
-    companyService.removeAddressFromCompany(companyName, addressId);
+    companyService.deleteAddressFromCompany(companyName, addressId);
   }
 }

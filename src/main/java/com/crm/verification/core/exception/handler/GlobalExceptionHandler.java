@@ -1,7 +1,5 @@
 package com.crm.verification.core.exception.handler;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.validation.ConstraintViolationException;
 
 import com.crm.verification.core.dto.response.exception.ExceptionResponse;
@@ -17,8 +15,6 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-  Map<String, Object> details = new LinkedHashMap<>();
-
   public ResponseEntity<ExceptionResponse> handleException(
       String exceptionMessage, WebRequest webRequest, HttpStatus httpStatus) {
     ExceptionResponse exceptionResponse = ExceptionResponse.builder()
@@ -26,8 +22,6 @@ public class GlobalExceptionHandler {
         .error(httpStatus.getReasonPhrase())
         .message(exceptionMessage)
         .path(webRequest.getDescription(false).substring(4))
-        //.timestamp(OffsetDateTime.now(ZoneId.systemDefault()))
-        .details(details)
         .build();
     return new ResponseEntity<>(exceptionResponse, httpStatus);
   }

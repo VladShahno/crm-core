@@ -35,6 +35,7 @@ public class Constants {
     public static final String FIRST_NAME_IS_REQUIRED = "{core.lead.name.first.required}";
     public static final String VERIFICATION_RESULT_REQUIRED = "{core.lead.verification.result.required}";
     public static final String LAST_NAME_REQUIRED = "{core.lead.name.last.required}";
+    public static final String EMAIL_REQUIRED = "{core.lead.name.email.required}";
     public static final String TITLE_REQUIRED = "{core.lead.title.required}";
     public static final String PROOF_LINK_REQUIRED = "{core.lead.proof-link.required}";
     public static final String COMMENTS_MAX_LENGTH = "{core.lead.company.comments.max.length}";

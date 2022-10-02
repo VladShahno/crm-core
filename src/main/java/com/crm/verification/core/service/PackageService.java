@@ -38,17 +38,17 @@ public class PackageService {
   public PackageDataResponseDto createPackage(String packageName, Set<String> leadEmails) {
     if (packageRepository.existsByPackageName(packageName)) {
       log.error("{} already exists", keyValue(PACKAGE_NAME, packageName));
-      throw new ResourceExistsException(PACKAGE_NAME + packageName);
+      throw new ResourceExistsException(PACKAGE, PACKAGE_NAME, packageName);
     }
 
-    var existingLeads = leadService.findAllByEmailIn(leadEmails);
+    var addingLeads = leadService.findAllByEmailIn(leadEmails);
 
     PackageData packageData = new PackageData();
     packageData.setPackageName(packageName);
 
-    if (CollectionUtils.isNotEmpty(existingLeads)) {
+    if (CollectionUtils.isNotEmpty(addingLeads)) {
       log.debug("Adding leads to new package with {}", keyValue(PACKAGE_NAME, packageName));
-      existingLeads.forEach(packageData::addLeads);
+      addingLeads.forEach(packageData::addLeads);
     }
 
     return packageDataMapper.toPackageDataResponseDto(packageRepository.save(packageData));
@@ -114,7 +114,7 @@ public class PackageService {
 
     if (!Collections.disjoint(leadEmails, leadEmailsFromTargetPackage)) {
       log.error("Package already have leads with {}", keyValue(EMAIL, leadEmails));
-      throw new ResourceExistsException(EMAIL + leadEmails);
+      throw new ResourceExistsException(LEAD, EMAIL, leadEmails.toString());
     }
     return saveLeadsToPackage(addingLeads, targetPackage);
   }

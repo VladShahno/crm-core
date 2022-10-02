@@ -1,9 +1,11 @@
 package com.crm.verification.core.rest;
 
+import static com.crm.verification.core.common.Constants.CoreServiceValidation.PACKAGE_NAME_REQUIRED;
+
 import javax.validation.constraints.NotBlank;
 
+import com.crm.verification.core.dto.response.exception.ExceptionResponse;
 import com.crm.verification.core.dto.response.list.LeadListResponseDto;
-import com.crm.verification.core.dto.response.profile.LeadProfileResponseDto;
 import com.crm.verification.core.service.LeadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,7 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,22 +43,22 @@ public class LeadListController {
   @Operation(summary = "Endpoint allows to get leads by packageName")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Leads received successfully",
-          content = {@Content(schema = @Schema(implementation = LeadProfileResponseDto.class))}),
+          content = {@Content(schema = @Schema(implementation = LeadListResponseDto.class))}),
       @ApiResponse(responseCode = "400", description = "Bad Request",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "401", description = "Unauthorized",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "403", description = "Forbidden",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "404", description = "Not Found",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))}),
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))}),
       @ApiResponse(responseCode = "500", description = "Internal Server Error",
-          content = {@Content(schema = @Schema(implementation = ResponseStatusException.class))})
+          content = {@Content(schema = @Schema(implementation = ExceptionResponse.class))})
   })
   public Page<LeadListResponseDto> getAllLeadsByPackageName(
-      @Parameter(description = "Leads packageName", required = true, example = "ccSooifMMSyVt5FeyQfw")
+      @Parameter(description = "Target Lead packageName", required = true, example = "Pack")
       @PathVariable(value = "packageName")
-      @NotBlank(message = "{not.blank}")
+      @NotBlank(message = PACKAGE_NAME_REQUIRED)
       String packageName,
       @PageableDefault(sort = "firstName", size = 25) Pageable pageable) {
     return leadService.getAllLeadsByPackageNameWithAppropriateResult(packageName, pageable);

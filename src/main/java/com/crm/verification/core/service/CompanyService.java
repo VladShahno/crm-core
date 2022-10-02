@@ -6,6 +6,7 @@ import static com.crm.verification.core.common.Constants.Logging.COMPANY_NOT_FOU
 import static com.crm.verification.core.common.Constants.Logging.DELETING_COMPANY;
 import static com.crm.verification.core.common.Constants.Logging.EMAIL;
 import static com.crm.verification.core.common.Constants.Logging.ID;
+import static com.crm.verification.core.common.Constants.Logging.LEAD;
 import static com.crm.verification.core.common.Constants.Logging.NAME;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
@@ -50,7 +51,7 @@ public class CompanyService {
   public CompanyCreateResponseDto createCompany(CompanyRequestDto companyDto) {
     if (companyRepository.existsByName(companyDto.getName())) {
       log.error("Company with {} already exists", keyValue(NAME, companyDto.getName()));
-      throw new ResourceExistsException(NAME + companyDto.getName());
+      throw new ResourceExistsException(COMPANY, NAME, companyDto.getName());
     }
 
     var company = companyMapper.toCompanyEntity(companyDto);
@@ -113,7 +114,7 @@ public class CompanyService {
     company.removeLead(leadToRemove);
   }
 
-  public void removeAddressFromCompany(String companyName, Long addressId) {
+  public void deleteAddressFromCompany(String companyName, Long addressId) {
     var company = findCompanyByName(companyName);
     company.getAddresses().stream().filter(address -> address.getId().equals(addressId))
         .findFirst().ifPresentOrElse(address -> {
@@ -122,7 +123,8 @@ public class CompanyService {
           company.removeAddress(address);
           addressRepository.delete(address);
         }, () -> {
-          log.error("Address with {} not found in company", keyValue(ID, addressId));
+          log.error("Address with {} not found in company with {}", keyValue(ID, addressId),
+              keyValue(NAME, companyName));
           throw new ResourceNotFoundException(ADDRESS, ID, addressId.toString());
         });
   }
@@ -141,6 +143,7 @@ public class CompanyService {
     }
   }
 
+  @Deprecated(forRemoval = true)
   public CompanyProfileResponseDto addExistingLeadsToCompany(String companyName, Set<String> leadEmails) {
     var targetCompany = findCompanyByName(companyName);
     var addingLeads = leadService.findAllByEmailIn(leadEmails);
@@ -164,7 +167,7 @@ public class CompanyService {
 
     if (leadEmails.containsAll(leadEmailFromTargetCompany)) {
       log.error("Company already have leads with {}", keyValue(EMAIL, leadEmails));
-      throw new ResourceExistsException(EMAIL + leadEmails);
+      throw new ResourceExistsException(LEAD, EMAIL, leadEmails.toString());
     }
     return saveLeadsToCompany(addingLeads, targetCompany);
   }

@@ -57,7 +57,7 @@ public class LeadService {
   public LeadListResponseDto createLeadProfile(LeadCreateRequestDto leadDto, String packageName) {
     if (leadRepository.existsByEmail(leadDto.getEmail())) {
       log.error("Lead with {} already exists", keyValue(EMAIL, leadDto.getEmail()));
-      throw new ResourceExistsException(EMAIL + leadDto.getEmail());
+      throw new ResourceExistsException(LEAD, EMAIL, leadDto.getEmail());
     }
     return saveLeadToPackage(packageName, leadDto);
   }
@@ -68,14 +68,14 @@ public class LeadService {
       LeadUpdateRequestDto leadRequestDto) {
 
     var leadByEmail = findLeadByEmail(email);
-    var verificationResult = updateVerificationResult(leadByEmail.getVerificationResults(), packageName,
-        leadRequestDto.getVerificationResults());
-
     var updatedLead = leadMapper.toLeadEntity(leadRequestDto);
+
+    updateVerificationResult(leadByEmail.getVerificationResults(), packageName,
+        leadRequestDto.getVerificationResults(), updatedLead);
+
     updatedLead.setEmail(email);
     updatedLead.getCompany().setName(leadByEmail.getCompany().getName());
     updatedLead.getCompany().getAddresses().forEach(address -> address.setCompany(updatedLead.getCompany()));
-    updatedLead.addVerificationResult(verificationResult);
 
     log.debug("Updating lead with {}", keyValue(EMAIL, email));
     return leadMapper.toLeadProfileResponseDto(leadRepository.save(updatedLead));
@@ -156,24 +156,22 @@ public class LeadService {
     });
   }
 
-  private VerificationResult updateVerificationResult(
+  private void updateVerificationResult(
       Set<VerificationResult> verificationResultFromRepository,
       String packageName,
-      String updatedVerificationResult) {
+      String updatedVerificationResult, Lead leadToUpdate) {
 
-    var verificationResultByEmailAndPackageName = verificationResultFromRepository
+    verificationResultFromRepository
         .stream()
         .filter(verificationResult -> verificationResult.getPackageData().getPackageName().equals(packageName))
-        .findFirst();
-
-    if (verificationResultByEmailAndPackageName.isPresent()) {
-      verificationResultByEmailAndPackageName.ifPresent(verificationResult ->
-          verificationResult.setResult(updatedVerificationResult));
-      log.debug("Update to {}", keyValue(VERIFICATION_RESULT, updatedVerificationResult));
-      return verificationResultByEmailAndPackageName.get();
-    }
-    log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(VERIFICATION_RESULT, verificationResultFromRepository));
-    throw new ResourceNotFoundException(VERIFICATION_RESULT);
+        .findFirst().ifPresentOrElse(verificationResult -> {
+          log.debug("Update to {}", keyValue(VERIFICATION_RESULT, updatedVerificationResult));
+          verificationResult.setResult(updatedVerificationResult);
+          leadToUpdate.addVerificationResult(verificationResult);
+        }, () -> {
+          log.error(NOT_FOUND_ERROR_KEY_VALUE, keyValue(VERIFICATION_RESULT, verificationResultFromRepository));
+          throw new ResourceNotFoundException(VERIFICATION_RESULT);
+        });
   }
 
   private Lead findLeadByEmail(String email) {
