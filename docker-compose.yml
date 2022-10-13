@@ -45,15 +45,17 @@ services:
   #      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   #      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
   keycloak:
-    image: jboss/keycloak:13.0.0
+    image: jboss/keycloak:latest
     environment:
       - KEYCLOAK_PASSWORD=admin
       - KEYCLOAK_USER=admin
-      - KEYCLOAK_IMPORT=/imports/realm-export.json
+      - KEYCLOAK_IMPORT=/opt/jboss/keycloak/imports/realm-test.json -Dkeycloak.profile.feature.upload_scripts=enabled
       - DB_VENDOR=h2
       - KEYCLOAK_URL=http://localhost:8080
       - KEYCLOAK_FRONTEND_URL=http://localhost:8080/auth
     ports:
-      - "9990:8080"
+      - "8080:8080"
     depends_on:
       - postgres
+    volumes:
+      - ./imports:/opt/jboss/keycloak/imports
