@@ -3,7 +3,7 @@ version: "3.5"
 services:
 
   postgres:
-    image: postgres:13.2-alpine
+    image: postgres:14.2-bullseye
     ports:
       - "5432:5432"
     environment:
@@ -17,7 +17,6 @@ services:
       - "8081:8081"
     depends_on:
       - postgres
-      - keycloak
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -55,7 +54,5 @@ services:
       - KEYCLOAK_FRONTEND_URL=http://localhost:8080/auth
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     volumes:
       - ./imports:/opt/jboss/keycloak/imports
